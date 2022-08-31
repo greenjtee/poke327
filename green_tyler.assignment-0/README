@@ -1,0 +1,15 @@
+# A Modified Abelian Sandpile
+This is an implementation of the abelian sandpile.
+
+The plane has dimensions 23 x 23.
+
+# Building
+To build the program, run `make`.
+
+# Running 
+After building, run the program by calling `./sandpile`.
+If the first argument is `--fps`, then the next argument after that can be a positive integer to set the framerate.
+
+The next arguments are optional. To add salt, the next arguments should come in the form of a touple (y, x, h) where y and x are the location on the plane, and h is the height of the pile to place there.
+
+If h is -1, a sink will be placed there, and no sand will accumulate in that spot. A sink cannot be made at the center of the board (11, 11, -1).
