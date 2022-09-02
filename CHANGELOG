@@ -2,14 +2,14 @@
 
 ## [1.01]
 ### Added
-- 2022-08-31
+ - 2022-09-01
+  - added tall grass regions with trees
+ - 2022-08-31
   - added pokemart generation
   - added pokecenter generation 
   - added path generation
-- 2022-08-30
+ - 2022-08-30
   - poke327.c
   - Makefile
   - CHANGELOG
   - README
-
-

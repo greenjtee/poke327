@@ -10,7 +10,16 @@
 #define MAP_POKECENTER 	'C'
 #define MAP_BORDER		'%'
 #define MAP_CLEARING	'.'
-#define MAX_TRIES		128
+#define MAP_TALL_GRASS	':'
+#define MAP_TREE		'^'
+#define MAP_BOULDER		'%'
+#define MAP_PLAYER		'@'
+
+#define MAX_TRIES				128
+#define TALL_GRASS_CHANCE		45
+#define MAP_TALL_GRASS_REGIONS	 3
+#define MAX_TALL_GRASS_DEPTH	15
+#define TREE_CHANCE				10
 
 void gen_path(char map[MAP_H][MAP_W]) {
 	int i, j;
@@ -19,11 +28,11 @@ void gen_path(char map[MAP_H][MAP_W]) {
 	unsigned intersectX2 = 0, intersectY2 = 0;
 	
 	// these might be passed into the function at some point
-	intersectX1 = rand() % (MAP_W - 2) + 1; // x value of north border exit
-	intersectY1 = rand() % (MAP_H - 2) + 1; // y value of west border exit
+	intersectX1 = rand() % (MAP_W - 4) + 3; // x value of north border exit
+	intersectY1 = rand() % (MAP_H - 4) + 3; // y value of west border exit
 
-	intersectX2 = rand() % (MAP_W - 2) + 1; // x value of south border exit
-	intersectY2 = rand() % (MAP_H - 2) + 1; // y value of east border exit
+	intersectX2 = rand() % (MAP_W - 4) + 3; // x value of south border exit
+	intersectY2 = rand() % (MAP_H - 4) + 3; // y value of east border exit
 
 	// initialize empty map	
 	for (i = 0; i < MAP_H; i++) {
@@ -170,14 +179,61 @@ void gen_pokemart(char map[MAP_H][MAP_W], unsigned* pmX, unsigned* pmY, unsigned
 	*pmY = pokemartY;
 }
 
+void gen_tall_grass(char map[MAP_H][MAP_W], unsigned x, unsigned y, unsigned last_dir, unsigned depth) {
+	if (depth > MAX_TALL_GRASS_DEPTH) {
+		return;
+	}
+	
+	if (x < (MAP_W-1) && x > 0 && y < (MAP_H-1) && y > 0) {
+		if (map[y][x] == MAP_CLEARING) {
+			if ((rand() % 100) < TREE_CHANCE) {
+				map[y][x] = MAP_TREE;
+			} else {
+				map[y][x] = MAP_TALL_GRASS;
+			}
+		}
+
+		if (last_dir != 0 && (rand() % 100) < TALL_GRASS_CHANCE) {
+			gen_tall_grass(map, x-1, y, 0, depth + 1);
+		}
+
+		if (last_dir != 1 && (rand() % 100) < TALL_GRASS_CHANCE) {
+			gen_tall_grass(map, x+1, y, 1, depth + 1);
+		}
+
+		if (last_dir != 2 && (rand() % 100) < TALL_GRASS_CHANCE) {
+			gen_tall_grass(map, x, y-1, 2, depth + 1);
+		}
+
+		if (last_dir != 3 && (rand() % 100) < TALL_GRASS_CHANCE) {
+			gen_tall_grass(map, x, y+1, 3, depth + 1);
+		}
+	}
+}
+
 void initialize_map(char map[MAP_H][MAP_W]) {
 	unsigned pokemartX = 0, pokemartY = 0, pokecenterX = 0, pokecenterY = 0;
-	
+	unsigned i = 0;
+
 	gen_path(map);	
 
 	gen_pokecenter(map, &pokemartX, &pokemartY);	
 
 	gen_pokemart(map, &pokemartX, &pokemartY, &pokecenterX, &pokecenterY);
+
+	unsigned tall_grass_seedX = 1;
+	unsigned tall_grass_seedY = 1;
+
+	for (i = 0; i < MAP_TALL_GRASS_REGIONS; i++) {
+		char seed_value = 0;
+		while (seed_value != MAP_CLEARING) {
+			tall_grass_seedX = (rand() % (MAP_W - 2)) + 1; // select an x on the left half of the screen
+			tall_grass_seedY = (rand() % (MAP_H - 2)) + 1; // select an x on the left half of the screen
+			seed_value = map[tall_grass_seedY][tall_grass_seedX];
+		}	
+		
+		gen_tall_grass(map, tall_grass_seedX, tall_grass_seedY, 5, 0);
+	}
 
 	printf("pokemart X = %d, pokemart Y = %d, pokecenter X = %d, pokecenter Y = %d\n", pokemartX, pokemartY, pokecenterX, pokecenterY);
 	
