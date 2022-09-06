@@ -16,9 +16,9 @@
 #define MAP_PLAYER		'@'
 
 #define MAX_TRIES				128
-#define TALL_GRASS_CHANCE		45
+#define TALL_GRASS_CHANCE		50
 #define MAP_TALL_GRASS_REGIONS	 3
-#define MAX_TALL_GRASS_DEPTH	15
+#define MAX_TALL_GRASS_DEPTH	25
 #define TREE_CHANCE				10
 
 void gen_path(char map[MAP_H][MAP_W]) {
