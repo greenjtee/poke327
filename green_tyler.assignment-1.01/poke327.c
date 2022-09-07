@@ -235,7 +235,7 @@ void initialize_map(char map[MAP_H][MAP_W]) {
 		gen_tall_grass(map, tall_grass_seedX, tall_grass_seedY, 5, 0);
 	}
 
-	printf("pokemart X = %d, pokemart Y = %d, pokecenter X = %d, pokecenter Y = %d\n", pokemartX, pokemartY, pokecenterX, pokecenterY);
+	// printf("pokemart X = %d, pokemart Y = %d, pokecenter X = %d, pokecenter Y = %d\n", pokemartX, pokemartY, pokecenterX, pokecenterY);
 	
 }
 
