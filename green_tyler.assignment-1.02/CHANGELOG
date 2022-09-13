@@ -24,3 +24,6 @@
   - added terminal input to fly to other maps with boundary checking for all input
 
 ### Updated
+  - 2022-09-13
+   - fixed how pointers are passed for simplicity in map get and generation
+   - updated user input flow and logic
