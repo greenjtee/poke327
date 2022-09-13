@@ -124,13 +124,6 @@ int8_t get_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t **map
 
 void gen_path(map_t **map) {
 	uint8_t i, j;
-	
-	// these might be passed into the function at some point
-	// (*map)->northExitX = rand() % (MAP_W - 4) + 3; // x value of north border exit
-	// (*map)->westExitY = rand() % (MAP_H - 4) + 3; // y value of west border exit
-
-	// (*map)->southExitX = rand() % (MAP_W - 4) + 3; // x value of south border exit
-	// (*map)->eastExitY = rand() % (MAP_H - 4) + 3; // y value of east border exit
 
 	// initialize empty map	
 	for (i = 0; i < MAP_H; i++) {
@@ -340,7 +333,7 @@ void initialize_map(map_t **map) {
 }
 
 void print_map(map_t **map) {
-	int i, j;
+	uint16_t i, j;
 
 	for (i = 0; i < MAP_H; i++) {
 		for (j = 0; j < MAP_W; j++) {
@@ -353,45 +346,53 @@ void print_map(map_t **map) {
 }
 
 int main(int argc, char* argv[]) {
-	map_t *world[WORLD_H][WORLD_W];
+	map_t *world[WORLD_H][WORLD_W] = {0};
 	map_t *currentMap = NULL;
 	uint8_t playing = 1;
-
 	int16_t x = 0, y = 0;
 
-	char *input;
-	uint64_t inputLength = 0;
+	char command[4] = {0};
+	int32_t flyX = 0, flyY = 0;
 
 	srand(time(NULL)); // set the seed for the random number generator
-
-	memset(world, 0, sizeof(world));
 	get_map(world, x, y, &currentMap);
 
 	while(playing) {
 		print_map(&currentMap);
 
-		getline(&input, &inputLength, stdin);
+		scanf(" %4s", command);
 
-		if (!strcmp(input, "q\n")) {
+		if (!strcmp(command, "q")) {
 			// quit
 			playing = 0;
-		} else if (!strcmp(input, "n\n")) {
+		} else if (!strcmp(command, "n")) {
 			// move north
-			get_map(world, x, --y, &currentMap);
-		} else if (!strcmp(input, "e\n")) {
+			flyY = y - 1;
+		} else if (!strcmp(command, "e")) {
 			// move east
-			get_map(world, ++x, y, &currentMap);
-		} else if (!strcmp(input, "s\n")) {
+			flyX = x + 1;
+		} else if (!strcmp(command, "s")) {
 			// move south
-			get_map(world, x, ++y, &currentMap);
-		} else if (!strcmp(input, "w\n")) {
+			flyY = y + 1;
+		} else if (!strcmp(command, "w")) {
 			// move west
-			get_map(world, --x, y, &currentMap);
+			flyX = x - 1;
+		} else if (!strcmp(command, "fly")) {
+			// move west
+			scanf(" %d %d", &flyX, &flyY);
 		}
+		
+		if (flyX + 200 < WORLD_W && flyX + 200 >= 0 && flyY + 200 < WORLD_H && flyY + 200 >= 0) {
+			x = flyX;
+			y = flyY;
+		} else {
+			printf("Bounds provided are outside of map\n");
+		}
+		
+		get_map(world, x, y, &currentMap);
 	}
 
 	free_world(world);
-	free(input);
 
 	return 0;
 }

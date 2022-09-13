@@ -20,5 +20,7 @@
   - added data structures for maps, and a variable to hold a 2d array of maps making the world
   - added functions to get maps from the world, and generate new if they dont exit, connecting neighbor paths
   - added terminal input to move from one map to another (n,s,e,w)
+ - 2022-09-13
+  - added terminal input to fly to other maps with boundary checking for all input
 
 ### Updated
