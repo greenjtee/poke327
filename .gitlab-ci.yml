@@ -8,7 +8,6 @@ build-job:
     before_script: 
         - apt update
         - apt install -y build-essential
-        - ls -la
-        - cd green_tyler.assignement-1.02
+        - cd green_tyler.assignment-1.02
     script:
         - make
