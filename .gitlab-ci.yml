@@ -2,6 +2,8 @@ stages:
     - build
     
 build-job:
+    tags:
+        - docker
     stage: build
     before_script: 
         - apt update
