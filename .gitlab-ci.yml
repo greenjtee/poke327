@@ -1,0 +1,11 @@
+stages:
+    - build
+    
+build:
+    stage: build
+    before_script: 
+        - apt update
+        - apt install build-essential
+        - cd green_tyler.assignement-1.02
+    script:
+        - make
