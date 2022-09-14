@@ -72,13 +72,11 @@ int8_t get_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t **map
 	}
 
 	m = check_map(world, x, y, map);
-	if (m == 0) {
-		return 0;
-	} else if (m == 1) {
+
+	if (m == 1) {
 		world[y+200][x+200] = *map = (map_t*)malloc(sizeof(map_t));
+		generate_map(world, x, y, *map);
 	}
-	
-	generate_map(world, x, y, *map);
 
 	return m;
 }
@@ -87,6 +85,8 @@ void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *m
 	uint8_t i, j;
 	map_t *northMap = NULL, *eastMap = NULL, *southMap = NULL, *westMap = NULL;
 	int8_t n = 0, e = 0, s = 0, w = 0;
+	uint8_t grassSeedX1 = 0, grassSeedY1 = 0, grassSeedX2 = 0, grassSeedY2 = 0;
+	uint8_t treeSeedX1 = 0, treeSeedY1 = 0, treeSeedX2 = 0, treeSeedY2 = 0;
 
 	n = check_map(world, x, y-1, &northMap);
 	e = check_map(world, x+1, y, &eastMap);
@@ -117,7 +117,6 @@ void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *m
 		map->westExitY = westMap->eastExitY;
 	}
 
-
 	// initialize empty map	
 	for (i = 0; i < MAP_H; i++) {
 		for (j = 0; j < MAP_W; j++) {
@@ -136,6 +135,27 @@ void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *m
 		map->values[i][0] = MAP_BORDER;
 		map->values[i][MAP_W - 1] = MAP_BORDER;
 	}
+
+	// place tall grass and trees
+
+	grassSeedX1 = (rand() % (MAP_W - 4)) + 2;
+	grassSeedY1 = (rand() % (MAP_H - 4)) + 2;
+	grassSeedX2 = (rand() % (MAP_W - 4)) + 2;
+	grassSeedY2 = (rand() % (MAP_H - 4)) + 2;
+
+	map->values[grassSeedY1][grassSeedX1] = MAP_TALL_GRASS;
+	map->values[grassSeedY2][grassSeedX2] = MAP_TALL_GRASS;
+	
+	treeSeedX1 = (rand() % (MAP_W - 4)) + 2;
+	treeSeedY1 = (rand() % (MAP_H - 4)) + 2;
+	treeSeedX2 = (rand() % (MAP_W - 4)) + 2;
+	treeSeedY2 = (rand() % (MAP_H - 4)) + 2;
+
+	map->values[treeSeedY1][treeSeedX1] = MAP_TREE;
+	map->values[treeSeedY2][treeSeedX2] = MAP_TREE;
+
+	// connect exits with path
+
 }
 
 void print_map(map_t *map) {
