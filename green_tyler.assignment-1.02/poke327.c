@@ -74,7 +74,9 @@ int8_t get_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t **map
 	m = check_map(world, x, y, map);
 
 	if (m == 1) {
-		world[y+200][x+200] = *map = (map_t*)malloc(sizeof(map_t));
+		map_t* generated_map = (map_t*)malloc(sizeof(map_t));
+		*map = generated_map;
+		world[y+200][x+200] = generated_map;
 		generate_map(world, x, y, *map);
 	}
 
@@ -137,7 +139,6 @@ void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *m
 	}
 
 	// place tall grass and trees
-
 	grassSeedX1 = (rand() % (MAP_W - 4)) + 2;
 	grassSeedY1 = (rand() % (MAP_H - 4)) + 2;
 	grassSeedX2 = (rand() % (MAP_W - 4)) + 2;
@@ -155,7 +156,62 @@ void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *m
 	map->values[treeSeedY2][treeSeedX2] = MAP_TREE;
 
 	// connect exits with path
+	uint8_t dX = abs(map->northExitX - map->southExitX);
+	uint8_t dY = abs(map->eastExitY - map->westExitY);
 
+	if (dX > dY) {
+		// make a vertical path
+		// connect west exit to further n/s exit
+		uint8_t i;
+		for (i = 0; i < map->northExitX || i < map->southExitX; i++) {
+			map->values[map->westExitY][i] = MAP_PATH;
+		}
+		
+		for (i = 0; i <= map->westExitY; i++) {
+			if (map->northExitX > map->southExitX) {
+				map->values[i][map->northExitX] = MAP_PATH;
+			} else {
+				map->values[i][map->southExitX] = MAP_PATH;
+			}
+		}
+
+		// connect east exit to further n/s exit
+
+		for (i = MAP_W - 1; i > map->northExitX || i > map->southExitX; i--) {
+			map->values[map->eastExitY][i] = MAP_PATH;
+		}
+		
+		for (i = MAP_H; i >= map->eastExitY; i--) {
+			if (map->northExitX < map->southExitX) {
+				// if (map->values[i][map->northExitX] == MAP_PATH) {
+				// 	break;
+				// }
+				map->values[i][map->northExitX] = MAP_PATH;
+			} else {
+				// if (map->values[i][map->southExitX] == MAP_PATH) {
+				// 	break;
+				// }
+				map->values[i][map->southExitX] = MAP_PATH;
+			}
+		}
+
+		uint8_t verticalX = map->northExitX;
+		if (map->southExitX < map->northExitX) {
+			verticalX = map->southExitX + (rand() % (dX + 1));
+		} else {
+			verticalX = map->northExitX + (rand() % (dX + 1));
+		}
+
+		if (map->eastExitY < map->westExitY) {
+			for (i = map->eastExitY; i < map->westExitY; i++) {
+				map->values[i][verticalX] = MAP_PATH;
+			}
+		} else {
+			for (i = map->westExitY; i < map->eastExitY; i++) {
+				map->values[i][verticalX] = MAP_PATH;
+			}
+		}
+	}
 }
 
 void print_map(map_t *map) {
@@ -177,7 +233,7 @@ int main(int argc, char* argv[]) {
 	uint8_t playing = 1;
 	int16_t x = 0, y = 0;
 
-	char command[4] = {0};
+	char command[4] = "s"; //{0};
 	int32_t flyX = 0, flyY = 0;
 	
 	get_map(world, x, y, &currentMap);
@@ -185,7 +241,7 @@ int main(int argc, char* argv[]) {
 	srand(time(NULL)); // set the seed for the random number generator
 
 	while(playing) {
-		scanf(" %3s", command);
+		// scanf(" %3s", command);
 
 		if (!strcmp(command, "q")) {
 			// quit
