@@ -10,5 +10,4 @@ build-job:
         - apt install -y build-essential
         - cd green_tyler.assignement-1.02
     script:
-        - make clean
         - make
