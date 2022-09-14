@@ -3,7 +3,7 @@ stages:
     
 build-job:
     tags:
-        - docker
+        - simple
     stage: build
     before_script: 
         - apt update
