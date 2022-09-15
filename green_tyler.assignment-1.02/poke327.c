@@ -39,6 +39,7 @@ typedef struct map_t {
 
 int8_t get_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t **map);
 int8_t check_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t **map);
+void gen_tall_grass(map_t *map, uint8_t x, uint8_t y, uint8_t last_dir, uint16_t depth);
 void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *map);
 void print_map(map_t *map);
 
@@ -56,6 +57,10 @@ void free_world(map_t *world[WORLD_H][WORLD_W]) {
 }
 
 int8_t check_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t **map) {
+	if (x < -200 || x > 200 || y < -200 || y > 200) {
+		return -1;
+	}
+
 	if (!(world[y+200][x+200])) {
 		return 1;
 	}
@@ -80,13 +85,49 @@ int8_t get_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t **map
 
 	return m;
 }
+
+void gen_tall_grass(map_t *map, uint8_t x, uint8_t y, uint8_t last_dir, uint16_t depth) {
+	if (depth > MAX_TALL_GRASS_DEPTH) {
+		return;
+	}
+	
+	if (x < (MAP_W-1) && x > 0 && y < (MAP_H-1) && y > 0) {
+		if (map->values[y][x] == MAP_CLEARING) {
+			if ((rand() % 100) < TREE_CHANCE) {
+				map->values[y][x] = MAP_TREE;
+			} else {
+				map->values[y][x] = MAP_TALL_GRASS;
+			}
+		}
+
+		if (last_dir != 0 && (rand() % 100) < TALL_GRASS_CHANCE) {
+			gen_tall_grass(map, x-1, y, 0, depth + 1);
+		}
+
+		if (last_dir != 1 && (rand() % 100) < TALL_GRASS_CHANCE) {
+			gen_tall_grass(map, x+1, y, 1, depth + 1);
+		}
+
+		if (last_dir != 2 && (rand() % 100) < TALL_GRASS_CHANCE) {
+			gen_tall_grass(map, x, y-1, 2, depth + 1);
+		}
+
+		if (last_dir != 3 && (rand() % 100) < TALL_GRASS_CHANCE) {
+			gen_tall_grass(map, x, y+1, 3, depth + 1);
+		}
+	}
+}
+
 	
 void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *map) {
 	uint8_t i, j;
 	map_t *northMap = NULL, *eastMap = NULL, *southMap = NULL, *westMap = NULL;
 	int8_t n = 0, e = 0, s = 0, w = 0;
-	uint8_t grassSeedX1 = 0, grassSeedY1 = 0, grassSeedX2 = 0, grassSeedY2 = 0;
-	uint8_t treeSeedX1 = 0, treeSeedY1 = 0, treeSeedX2 = 0, treeSeedY2 = 0;
+	uint8_t grassSeedX = 0, grassSeedY = 0;
+	uint16_t manhattan_distance = 0;
+	uint16_t building_chance = 5;
+	uint8_t pokecenterX = 0, pokecenterY = 0, pokemartX = 0, pokemartY = 0;
+	uint8_t valid = 0, tries = 0;
 
 	n = check_map(world, x, y-1, &northMap);
 	e = check_map(world, x+1, y, &eastMap);
@@ -124,6 +165,37 @@ void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *m
 		}
 	}
 
+	// place tall grass and trees
+
+	for (i = 0; i < MAP_TALL_GRASS_REGIONS; i++) {
+		grassSeedX = (rand() % (MAP_W - 4)) + 2;
+		grassSeedY = (rand() % (MAP_H - 4)) + 2;
+
+		gen_tall_grass(map, grassSeedX, grassSeedY, 5, 0);
+	}
+ 
+	for (i = 0; i < map->northExitX || i < map->southExitX; i++) {
+		map->values[map->westExitY][i] = MAP_PATH;
+	}
+
+	for (i = 0; i < map->westExitY || i < map->eastExitY; i++) {
+		map->values[i][map->northExitX] = MAP_PATH;
+	}
+
+	for (i = MAP_H - 1; i > map->eastExitY || i > map->westExitY; i--) {
+		// if (map->values[i][map->southExitX] == MAP_PATH) {
+		// 	break;
+		// }
+		map->values[i][map->southExitX] = MAP_PATH;
+	}
+
+	for (i = MAP_W - 1; i > map->northExitX || i > map->southExitX; i--) {
+		// if (map->values[map->eastExitY][i] == MAP_PATH) {
+		// 	break;
+		// }
+		map->values[map->eastExitY][i] = MAP_PATH;
+	}
+
 	// create N/S border
 	for (i = 0; i < MAP_W; i++) {
 		map->values[0][i] = MAP_BORDER;
@@ -136,66 +208,101 @@ void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *m
 		map->values[i][MAP_W - 1] = MAP_BORDER;
 	}
 
-	// place tall grass and trees
+	if (map->northExitX) {
+		map->values[0][map->northExitX] = MAP_PATH;
+	}
 
-	grassSeedX1 = (rand() % (MAP_W - 4)) + 2;
-	grassSeedY1 = (rand() % (MAP_H - 4)) + 2;
-	grassSeedX2 = (rand() % (MAP_W - 4)) + 2;
-	grassSeedY2 = (rand() % (MAP_H - 4)) + 2;
+	if (map->eastExitY) {
+		map->values[map->eastExitY][MAP_W-1] = MAP_PATH;
+	}
 
-	map->values[grassSeedY1][grassSeedX1] = MAP_TALL_GRASS;
-	map->values[grassSeedY2][grassSeedX2] = MAP_TALL_GRASS;
-	
-	treeSeedX1 = (rand() % (MAP_W - 4)) + 2;
-	treeSeedY1 = (rand() % (MAP_H - 4)) + 2;
-	treeSeedX2 = (rand() % (MAP_W - 4)) + 2;
-	treeSeedY2 = (rand() % (MAP_H - 4)) + 2;
-
-	map->values[treeSeedY1][treeSeedX1] = MAP_TREE;
-	map->values[treeSeedY2][treeSeedX2] = MAP_TREE;
-
-	// connect exits with path
-	uint8_t dX = abs(map->northExitX - map->southExitX);
-	uint8_t dY = abs(map->eastExitY - map->westExitY);
-
-	// connect west exit to further n/s exit
-	for (i = 0; i < map->northExitX || i < map->southExitX; i++) {
-		map->values[map->westExitY][i] = MAP_PATH;
+	if (map->southExitX) {
+		map->values[MAP_H-1][map->southExitX] = MAP_PATH;
 	}
 	
-	for (i = 0; i <= map->westExitY; i++) {
-		map->values[i][map->northExitX] = MAP_PATH;
+	if (map->westExitY) {
+		map->values[map->westExitY][0] = MAP_PATH;
 	}
 
-	for (i = MAP_H - 1; i >= map->eastExitY || i >= map->westExitY; i--) {
-		if (map->values[i][map->southExitX] == MAP_PATH) {
-			break;
-		}
-		map->values[i][map->southExitX] = MAP_PATH;
+	manhattan_distance = abs(x) + abs(y);
+	if (manhattan_distance < 200) {
+		building_chance = (int)((-45.0f * manhattan_distance / 200.0f) + 50);
 	}
 
-	uint8_t verticalX = map->northExitX;
-	if (map->southExitX < map->northExitX) {
-		verticalX = map->southExitX + (rand() % (dX + 1));
-	} else {
-		verticalX = map->northExitX + (rand() % (dX + 1));
-	}
-	
-	// connect east exit to further n/s exit
-	for (i = MAP_W - 1; i > map->northExitX || i > map->southExitX; i--) {
-		if (map->values[map->eastExitY][i] == MAP_PATH) {
-			break;
+	valid = 0;
+	tries = 0;
+
+	if ((rand() % 100) < building_chance) {
+		// generate pokemart
+		while(!valid && tries < MAX_TRIES) {
+			valid = 1;
+			pokemartX = (rand() % (MAP_W - 6)) + 3;
+			pokemartY = 2;
+
+			while (pokemartY < MAP_H && map->values[pokemartY][pokemartX] != MAP_PATH) {
+				pokemartY++;
+			}
+
+			if (pokemartY + 3 >= MAP_H) {
+				valid = 0;
+			} else {
+				if (
+					map->values[pokemartY+1][pokemartX] != MAP_PATH && 
+					map->values[pokemartY+1][pokemartX+1] != MAP_PATH &&
+					map->values[pokemartY+2][pokemartX] != MAP_PATH &&
+					map->values[pokemartY+2][pokemartX+1] != MAP_PATH
+				) {
+					map->values[pokemartY+1][pokemartX] = MAP_POKEMART;
+					map->values[pokemartY+1][pokemartX+1] = MAP_POKEMART;
+					map->values[pokemartY+2][pokemartX] = MAP_POKEMART;
+					map->values[pokemartY+2][pokemartX+1] = MAP_POKEMART;
+				} else {
+					valid = 0;
+				}
+			}
 		}
-		map->values[map->eastExitY][i] = MAP_PATH;
+
+		tries++;
 	}
 
-	if (map->eastExitY < map->westExitY) {
-		for (i = map->eastExitY; i < map->westExitY; i++) {
-			// map->values[i][verticalX] = MAP_PATH;
-		}
-	} else {
-		for (i = map->westExitY; i < map->eastExitY; i++) {
-			// map->values[i][verticalX] = MAP_PATH;
+	valid = 0;
+	tries = 0;
+		
+	if ((rand() % 100) < building_chance) {
+		// generate pokecenter
+		while(!valid && tries < MAX_TRIES) {
+			valid = 1;
+			pokecenterY = (rand() % (MAP_H - 4)) + 2;
+			pokecenterX = 2;
+
+			while (pokecenterX < MAP_W && map->values[pokecenterY][pokecenterX] != MAP_PATH) {
+				pokecenterX++;
+			}
+
+			if (pokecenterX + 3 >= MAP_W) {
+				valid = 0;
+			} else {
+				if (
+					map->values[pokecenterY][pokecenterX+1] != MAP_PATH && 
+					map->values[pokecenterY+1][pokecenterX+1] != MAP_PATH &&
+					map->values[pokecenterY][pokecenterX+2] != MAP_PATH &&
+					map->values[pokecenterY+1][pokecenterX+2] != MAP_PATH &&
+					map->values[pokecenterY][pokecenterX+1] != MAP_POKEMART && 
+					map->values[pokecenterY+1][pokecenterX+1] != MAP_POKEMART &&
+					map->values[pokecenterY][pokecenterX+2] != MAP_POKEMART &&
+					map->values[pokecenterY+1][pokecenterX+2] != MAP_POKEMART
+
+				) {
+					map->values[pokecenterY][pokecenterX+1] = MAP_POKECENTER;
+					map->values[pokecenterY+1][pokecenterX+1] = MAP_POKECENTER;
+					map->values[pokecenterY][pokecenterX+2] = MAP_POKECENTER;
+					map->values[pokecenterY+1][pokecenterX+2] = MAP_POKECENTER;
+				} else {
+					valid = 0;
+				}
+			}
+
+			tries++;
 		}
 	}
 }
