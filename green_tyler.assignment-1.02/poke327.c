@@ -155,7 +155,49 @@ void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *m
 	map->values[treeSeedY2][treeSeedX2] = MAP_TREE;
 
 	// connect exits with path
+	uint8_t dX = abs(map->northExitX - map->southExitX);
+	uint8_t dY = abs(map->eastExitY - map->westExitY);
 
+	// connect west exit to further n/s exit
+	for (i = 0; i < map->northExitX || i < map->southExitX; i++) {
+		map->values[map->westExitY][i] = MAP_PATH;
+	}
+	
+	for (i = 0; i <= map->westExitY; i++) {
+		map->values[i][map->northExitX] = MAP_PATH;
+	}
+
+	for (i = MAP_H - 1; i >= map->eastExitY || i >= map->westExitY; i--) {
+		if (map->values[i][map->southExitX] == MAP_PATH) {
+			break;
+		}
+		map->values[i][map->southExitX] = MAP_PATH;
+	}
+
+	uint8_t verticalX = map->northExitX;
+	if (map->southExitX < map->northExitX) {
+		verticalX = map->southExitX + (rand() % (dX + 1));
+	} else {
+		verticalX = map->northExitX + (rand() % (dX + 1));
+	}
+	
+	// connect east exit to further n/s exit
+	for (i = MAP_W - 1; i > map->northExitX || i > map->southExitX; i--) {
+		if (map->values[map->eastExitY][i] == MAP_PATH) {
+			break;
+		}
+		map->values[map->eastExitY][i] = MAP_PATH;
+	}
+
+	if (map->eastExitY < map->westExitY) {
+		for (i = map->eastExitY; i < map->westExitY; i++) {
+			// map->values[i][verticalX] = MAP_PATH;
+		}
+	} else {
+		for (i = map->westExitY; i < map->eastExitY; i++) {
+			// map->values[i][verticalX] = MAP_PATH;
+		}
+	}
 }
 
 void print_map(map_t *map) {
