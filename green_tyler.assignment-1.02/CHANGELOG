@@ -22,5 +22,10 @@
   - added terminal input to move from one map to another (n,s,e,w)
  - 2022-09-13
   - added terminal input to fly to other maps with boundary checking for all input
-
 ### Updated
+  - 2022-09-13
+   - fixed how pointers are passed for simplicity in map get and generation
+   - updated user input flow and logic
+  - 2022-09-14
+   - updated terrain generation
+   - updated pokemart and pokecenter generation to have a chance to spawn
