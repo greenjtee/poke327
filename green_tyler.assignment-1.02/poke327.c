@@ -183,16 +183,10 @@ void generate_map(map_t *world[WORLD_H][WORLD_W], int16_t x, int16_t y, map_t *m
 	}
 
 	for (i = MAP_H - 1; i > map->eastExitY || i > map->westExitY; i--) {
-		// if (map->values[i][map->southExitX] == MAP_PATH) {
-		// 	break;
-		// }
 		map->values[i][map->southExitX] = MAP_PATH;
 	}
 
 	for (i = MAP_W - 1; i > map->northExitX || i > map->southExitX; i--) {
-		// if (map->values[map->eastExitY][i] == MAP_PATH) {
-		// 	break;
-		// }
 		map->values[map->eastExitY][i] = MAP_PATH;
 	}
 
