@@ -2,3 +2,4 @@ to_submit
 .vscode
 *.log
 **/poke327
+**/*.o
