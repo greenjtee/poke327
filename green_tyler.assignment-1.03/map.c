@@ -15,26 +15,6 @@
 
 extern world_t world;
 
-int8_t check_map(uint16_t x, uint16_t y) {
-	if (!(world.world[y][x])) {
-		return 1;
-	}
-
-	return 0;
-}
-
-int8_t get_map(uint16_t x, uint16_t y) {
-	int8_t m = 0;
-
-	m = check_map(x, y);
-
-	if (m == 1) {
-		new_map(world.world[y][x]);
-	}
-
-	return m;
-}
-
 int32_t path_cmp(const void *key, const void *with) {
   return ((path_t *) key)->cost - ((path_t *) with)->cost;
 }
@@ -140,6 +120,62 @@ void dijkstra_path(map_t *m, pair_t from, pair_t to)
                                            [p->pos[dim_x]    ].hn);
     }
   }
+}
+
+void dijkstra_map(map_t *m, path_t cost_map[MAP_Y][MAP_X], pair_t from, trainer_type_t trainer) {
+  int32_t y, x, yl, xl;
+  heap_t q;
+
+  path_t *u;
+
+  for (y = 0; y < MAP_Y; y++) {
+    for (x = 0; x < MAP_X; x++) {
+      cost_map[y][x].cost = INT_MAX;
+      cost_map[y][x].pos[dim_y] = y;
+      cost_map[y][x].pos[dim_x] = x;
+    }
+  }
+
+  cost_map[from[dim_y]][from[dim_x]].cost = 0; // pc location
+
+  heap_init(&q, path_cmp, NULL);
+  for (y = 1; y < MAP_Y - 1; y++) {
+    for (x = 1; x < MAP_X - 1; x++) {
+      cost_map[y][x].hn = heap_insert(&q, &(cost_map[y][x]));
+      // if (!cost_map[y][x].hn) {
+      //   printf("%d, %d\n", x, y);
+      // }
+    }
+  }
+
+  while ((u = heap_remove_min(&q))) {
+    u->hn = NULL;
+    xl = u->pos[dim_x];
+    yl = u->pos[dim_y];
+
+    for (y = -1; y < 2; y++) {
+      for (x = -1; x < 2; x++) {
+        if ((y == 0 && x == 0) || ((yl+y) == (MAP_Y-1)) || ((yl + y) == 0) || ((xl + x) == (MAP_X-1)) || ((xl + x) == 0)) {
+          continue; // only visit neighbors in heap
+        }
+
+        int ter_cost = terrain_cost(m->map[yl+y][xl+x], trainer);
+
+        if (u->cost + ter_cost < cost_map[yl+y][xl+x].cost) {
+          cost_map[yl+y][xl+x].cost = u->cost + ter_cost;
+          cost_map[yl+y][xl+x].from[dim_y] = u->pos[dim_y];
+          cost_map[yl+y][xl+x].from[dim_x] = u->pos[dim_x];
+          if (cost_map[yl+y][xl+x].hn) {
+            heap_decrease_key_no_replace(&q, cost_map[yl+y][xl+x].hn);
+          } else {
+            printf("%d, %d\n", xl+x, yl+y);
+          }
+        }
+      }
+    }
+  }
+
+  heap_delete(&q);
 }
 
 int build_paths(map_t *m)
@@ -646,6 +682,24 @@ int place_trees(map_t *m)
   }
 
   return 0;
+}
+
+int terrain_cost(terrain_type_t terrain, trainer_type_t trainer) {
+  // int cost_matrix[trainer_num][ter_num] = {
+  //   {1, INT_MAX, INT_MAX, 10, 10, 10, 20, 10, INT_MAX, INT_MAX, 10},
+  //   {1, INT_MAX, INT_MAX, 10, 50, 50, 15, 10, 15, 15, INT_MAX },
+  //   {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 10, INT_MAX, INT_MAX, INT_MAX},
+  //   {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 10, INT_MAX, INT_MAX, INT_MAX}
+  // };
+
+  // if (cost_matrix[trainer][terrain] == 0) {
+  //   return 1;
+  // }
+
+  // return cost_matrix[trainer][terrain];
+
+  // int cost_matrix[11] = {1, INT_MAX, INT_MAX, 10, 10, 10, 20, 10, INT_MAX, INT_MAX, 10};
+  return 1; //cost_matrix[terrain];
 }
 
 int new_map()
