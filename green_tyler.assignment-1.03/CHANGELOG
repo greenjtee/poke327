@@ -34,6 +34,11 @@
 ### Added
  - 2022-09-16
   - implemented sheaffer's code for map generation
+ - 2022-09-17
+  - cost map for hiker and rival to world struct
+  - function for calculating map movement cost for different trainer types
+  - function for printing movement cost map
+  - added pc character to output
 ### Updated
  - 2022-09-16
   - changed user input to be simpler and fit new coordinates
