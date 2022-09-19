@@ -1,3 +1,4 @@
+// written by Jeremy Sheaffer
 #ifndef HEAP_H
 # define HEAP_H
 
