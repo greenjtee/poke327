@@ -9,6 +9,8 @@ typedef struct world {
   map_t *world[WORLD_SIZE][WORLD_SIZE];
   pair_t cur_idx;
   map_t *cur_map;
+  path_t hiker_cost_map[MAP_Y][MAP_X];
+  path_t rival_cost_map[MAP_Y][MAP_X];
 } world_t;
 
 void init_world();

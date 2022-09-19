@@ -1,5 +1,10 @@
+all: poke327
+
 prod: poke327.o heap.o map.o world.o
 	gcc -Wall -Werror -g poke327.o map.o heap.o world.o -o poke327
+
+poke327: poke327.o heap.o map.o world.o
+	gcc -Wall -g poke327.o map.o heap.o world.o -o poke327
 
 poke327.o: poke327.c heap.c heap.h map.c map.h
 	gcc -Wall -g poke327.c -o poke327.o -c

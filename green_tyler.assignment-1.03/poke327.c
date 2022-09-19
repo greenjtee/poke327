@@ -14,14 +14,27 @@ int main(int argc, char* argv[]) {
 	uint8_t playing = 1;
 	int16_t flyX = 0, flyY = 0;
 
+	pair_t pc;
+	pc[dim_x] = 5;
+	pc[dim_y] = 5;
+
 	char command[4] = {0};
 	srand(time(NULL)); // set the seed for the random number generator
 
 	init_world();
 
-	print_map(world.cur_map);
 
 	while(playing) {
+		new_map();
+		world.cur_map->map[5][5] = ter_pc;
+
+		dijkstra_map(world.cur_map, world.hiker_cost_map, pc, trainer_hiker);
+		dijkstra_map(world.cur_map, world.rival_cost_map, pc, trainer_rival);
+
+		print_map(world.cur_map);
+		print_cost_map(world.hiker_cost_map);
+		print_cost_map(world.rival_cost_map);
+
 		printf("current position is %hd, %hd. Command: ", world.cur_idx[0] - 200, world.cur_idx[1] - 200);
 		scanf(" %3s", command);
 
@@ -58,8 +71,6 @@ int main(int argc, char* argv[]) {
 			printf("Unknown Command.\n");
 			continue;
 		}
-		new_map();
-		print_map(world.cur_map);
 	}
 
 	delete_world();

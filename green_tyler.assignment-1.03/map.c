@@ -15,26 +15,6 @@
 
 extern world_t world;
 
-int8_t check_map(uint16_t x, uint16_t y) {
-	if (!(world.world[y][x])) {
-		return 1;
-	}
-
-	return 0;
-}
-
-int8_t get_map(uint16_t x, uint16_t y) {
-	int8_t m = 0;
-
-	m = check_map(x, y);
-
-	if (m == 1) {
-		new_map(world.world[y][x]);
-	}
-
-	return m;
-}
-
 int32_t path_cmp(const void *key, const void *with) {
   return ((path_t *) key)->cost - ((path_t *) with)->cost;
 }
@@ -140,6 +120,70 @@ void dijkstra_path(map_t *m, pair_t from, pair_t to)
                                            [p->pos[dim_x]    ].hn);
     }
   }
+}
+
+void dijkstra_map(map_t *m, path_t cost_map[MAP_Y][MAP_X], pair_t from, trainer_type_t trainer) {
+  int32_t y, x, yl, xl;
+  int64_t ter_cost;
+  heap_t q;
+  int64_t cost_matrix[4][11] = {
+    {1, INT_MAX, INT_MAX, 10, 10, 10, 20, 10, INT_MAX, INT_MAX, 10},
+    {1, INT_MAX, INT_MAX, 10, 50, 50, 15, 10, 15, 15, INT_MAX},
+    {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 10, INT_MAX, INT_MAX, INT_MAX},
+    {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 10, INT_MAX, INT_MAX, INT_MAX}
+  };
+
+  path_t *u;
+
+  for (y = 0; y < MAP_Y; y++) {
+    for (x = 0; x < MAP_X; x++) {
+      cost_map[y][x].cost = INT_MAX;
+      cost_map[y][x].pos[dim_y] = y;
+      cost_map[y][x].pos[dim_x] = x;
+    }
+  }
+
+  cost_map[from[dim_y]][from[dim_x]].cost = 0; // pc location
+
+  heap_init(&q, path_cmp, NULL);
+  for (y = 1; y < MAP_Y - 1; y++) {
+    for (x = 1; x < MAP_X - 1; x++) {
+      cost_map[y][x].hn = heap_insert(&q, &(cost_map[y][x]));
+      // if (!cost_map[y][x].hn) {
+      //   printf("%d, %d\n", x, y);
+      // }
+    }
+  }
+
+  while ((u = heap_remove_min(&q))) {
+    u->hn = NULL;
+    xl = u->pos[dim_x];
+    yl = u->pos[dim_y];
+
+    for (y = -1; y < 2; y++) {
+      for (x = -1; x < 2; x++) {
+        if ((y == 0 && x == 0) || ((yl+y) == (MAP_Y-1)) || ((yl + y) == 0) || ((xl + x) == (MAP_X-1)) || ((xl + x) == 0)) {
+          continue; // only visit neighbors in heap
+        }
+
+        ter_cost = cost_matrix[trainer][m->map[y+yl][x+xl]];
+        // int ter_cost = cost_matrix[0][10];
+
+        if (u->cost + ter_cost < cost_map[yl+y][xl+x].cost) {
+          cost_map[yl+y][xl+x].cost = u->cost + ter_cost;
+          cost_map[yl+y][xl+x].from[dim_y] = u->pos[dim_y];
+          cost_map[yl+y][xl+x].from[dim_x] = u->pos[dim_x];
+          if (cost_map[yl+y][xl+x].hn) {
+            heap_decrease_key_no_replace(&q, cost_map[yl+y][xl+x].hn);
+          } else {
+            printf("%d, %d\n", xl+x, yl+y);
+          }
+        }
+      }
+    }
+  }
+
+  heap_delete(&q);
 }
 
 int build_paths(map_t *m)
@@ -743,6 +787,9 @@ void print_map(map_t *m)
       case ter_clearing:
         putchar('.');
         break;
+      case ter_pc:
+        putchar('@');
+        break;
       default:
         default_reached = 1;
         break;
@@ -753,5 +800,19 @@ void print_map(map_t *m)
 
   if (default_reached) {
     fprintf(stderr, "Default reached in %s\n", __FUNCTION__);
+  }
+}
+
+void print_cost_map(path_t cm[MAP_Y][MAP_X]) {
+  int32_t x, y;
+  for (y = 0; y < MAP_Y; y++) {
+    for(x = 0; x < MAP_X; x++) {
+      if (cm[y][x].cost != INT_MAX) {
+        printf("%02d ", cm[y][x].cost % 100);
+      } else {
+        printf("   ");
+      }
+    }
+    printf("\n");
   }
 }
