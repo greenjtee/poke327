@@ -23,11 +23,17 @@ int main(int argc, char* argv[]) {
 
 	init_world();
 
+
 	while(playing) {
 		new_map();
+		world.cur_map->map[5][5] = ter_pc;
+
 		dijkstra_map(world.cur_map, world.hiker_cost_map, pc, trainer_hiker);
 		dijkstra_map(world.cur_map, world.rival_cost_map, pc, trainer_rival);
+
 		print_map(world.cur_map);
+		print_cost_map(world.hiker_cost_map);
+		print_cost_map(world.rival_cost_map);
 
 		printf("current position is %hd, %hd. Command: ", world.cur_idx[0] - 200, world.cur_idx[1] - 200);
 		scanf(" %3s", command);

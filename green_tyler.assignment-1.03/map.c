@@ -124,7 +124,14 @@ void dijkstra_path(map_t *m, pair_t from, pair_t to)
 
 void dijkstra_map(map_t *m, path_t cost_map[MAP_Y][MAP_X], pair_t from, trainer_type_t trainer) {
   int32_t y, x, yl, xl;
+  int64_t ter_cost;
   heap_t q;
+  int64_t cost_matrix[4][11] = {
+    {1, INT_MAX, INT_MAX, 10, 10, 10, 20, 10, INT_MAX, INT_MAX, 10},
+    {1, INT_MAX, INT_MAX, 10, 50, 50, 15, 10, 15, 15, INT_MAX},
+    {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 10, INT_MAX, INT_MAX, INT_MAX},
+    {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 10, INT_MAX, INT_MAX, INT_MAX}
+  };
 
   path_t *u;
 
@@ -159,7 +166,8 @@ void dijkstra_map(map_t *m, path_t cost_map[MAP_Y][MAP_X], pair_t from, trainer_
           continue; // only visit neighbors in heap
         }
 
-        int ter_cost = terrain_cost(m->map[yl+y][xl+x], trainer);
+        ter_cost = cost_matrix[trainer][m->map[y+yl][x+xl]];
+        // int ter_cost = cost_matrix[0][10];
 
         if (u->cost + ter_cost < cost_map[yl+y][xl+x].cost) {
           cost_map[yl+y][xl+x].cost = u->cost + ter_cost;
@@ -684,24 +692,6 @@ int place_trees(map_t *m)
   return 0;
 }
 
-int terrain_cost(terrain_type_t terrain, trainer_type_t trainer) {
-  // int cost_matrix[trainer_num][ter_num] = {
-  //   {1, INT_MAX, INT_MAX, 10, 10, 10, 20, 10, INT_MAX, INT_MAX, 10},
-  //   {1, INT_MAX, INT_MAX, 10, 50, 50, 15, 10, 15, 15, INT_MAX },
-  //   {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 10, INT_MAX, INT_MAX, INT_MAX},
-  //   {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 10, INT_MAX, INT_MAX, INT_MAX}
-  // };
-
-  // if (cost_matrix[trainer][terrain] == 0) {
-  //   return 1;
-  // }
-
-  // return cost_matrix[trainer][terrain];
-
-  // int cost_matrix[11] = {1, INT_MAX, INT_MAX, 10, 10, 10, 20, 10, INT_MAX, INT_MAX, 10};
-  return 1; //cost_matrix[terrain];
-}
-
 int new_map()
 {
   int d, p;
@@ -807,5 +797,19 @@ void print_map(map_t *m)
 
   if (default_reached) {
     fprintf(stderr, "Default reached in %s\n", __FUNCTION__);
+  }
+}
+
+void print_cost_map(path_t cm[MAP_Y][MAP_X]) {
+  int32_t x, y;
+  for (y = 0; y < MAP_Y; y++) {
+    for(x = 0; x < MAP_X; x++) {
+      if (cm[y][x].cost != INT_MAX) {
+        printf("%2d ", cm[y][x].cost % 100);
+      } else {
+        printf("   ");
+      }
+    }
+    printf("\n");
   }
 }

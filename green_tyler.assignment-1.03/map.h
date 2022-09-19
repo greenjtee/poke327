@@ -42,7 +42,8 @@ typedef enum __attribute__ ((__packed__)) terrain_type {
   ter_clearing,
   ter_mountain,
   ter_forest,
-  ter_exit
+  ter_exit,
+  ter_pc
 } terrain_type_t;
 
 typedef enum __attribute__ ((__packed__)) trainer_type {
@@ -79,5 +80,6 @@ int place_trees(map_t *m);
 int terrain_cost(terrain_type_t terrain, trainer_type_t trainer);
 int new_map();
 void print_map(map_t *m);
+void print_cost_map(path_t cm[MAP_Y][MAP_X]);
 
 #endif
