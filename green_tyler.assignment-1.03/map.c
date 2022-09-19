@@ -787,6 +787,9 @@ void print_map(map_t *m)
       case ter_clearing:
         putchar('.');
         break;
+      case ter_pc:
+        putchar('@');
+        break;
       default:
         default_reached = 1;
         break;
@@ -805,7 +808,7 @@ void print_cost_map(path_t cm[MAP_Y][MAP_X]) {
   for (y = 0; y < MAP_Y; y++) {
     for(x = 0; x < MAP_X; x++) {
       if (cm[y][x].cost != INT_MAX) {
-        printf("%2d ", cm[y][x].cost % 100);
+        printf("%02d ", cm[y][x].cost % 100);
       } else {
         printf("   ");
       }
