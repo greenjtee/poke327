@@ -1,7 +1,6 @@
 #ifndef TRAINER_H
 #define TRAINER_H
 
-#include "map.h"
 #include "utility.h"
 
 typedef enum trainer_type {
