@@ -37,3 +37,12 @@
 ### Updated
  - 2022-09-16
   - changed user input to be simpler and fit new coordinates
+
+## [1.04]
+### Added
+ - 2022-09-26
+  - added utility and trainer files to organize new features
+
+### Updated
+ - 2022-09-26
+  - changed map to keep track of trainers
