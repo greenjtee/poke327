@@ -77,7 +77,6 @@ int place_center(map_t *m);
 int map_terrain(map_t *m, uint8_t n, uint8_t s, uint8_t e, uint8_t w);
 int place_boulders(map_t *m);
 int place_trees(map_t *m);
-int terrain_cost(terrain_type_t terrain, trainer_type_t trainer);
 int new_map();
 void print_map(map_t *m);
 void print_cost_map(path_t cm[MAP_Y][MAP_X]);
