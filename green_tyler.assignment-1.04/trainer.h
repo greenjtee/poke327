@@ -23,10 +23,12 @@ typedef struct trainer {
     trainer_type_t type;
     int32_t nextMove;
     heap_node_t* n;
+    int8_t direction;
+    int8_t heading;
 } trainer_t;
 
 void place_trainers();
-uint32_t getNextMove(world_t *world, trainer_t *t, pair_t *to);
-uint32_t getMaxDescent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *pos, pair_t *to);
+uint32_t getNextMove(trainer_t *t, pair_t to);
+uint32_t getMaxDescent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *pos, pair_t to);
 
 #endif

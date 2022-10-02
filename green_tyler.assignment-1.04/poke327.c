@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 		pair_t to;
 		trainer_t* nextUp = heap_remove_min(&world.cur_map->trainer_queue);
 		if (nextUp) {
-			uint32_t minCost = getNextMove(&world, nextUp, &to);
+			uint32_t minCost = getNextMove(nextUp, to);
 			
 			if (minCost != INT_MAX) {
 				nextUp->nextMove = world.time + minCost;
@@ -89,11 +89,11 @@ int main(int argc, char* argv[]) {
 			lastPos[dim_y] = world.pc.pos[dim_y];
 
 			print_map(world.cur_map);
-			usleep(250000);
+			// print_cost_map(world.rival_cost_map);
+			usleep(100000);
 		}
 
 		// print_cost_map(world.hiker_cost_map);
-		// print_cost_map(world.rival_cost_map);
 
 		/*
 		printf("current position is %hd, %hd. Command: ", world.cur_idx[0] - 200, world.cur_idx[1] - 200);

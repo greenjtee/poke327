@@ -131,10 +131,11 @@ void dijkstra_map(map_t *m, path_t cost_map[MAP_Y][MAP_X], pair_t from, trainer_
   int32_t y, x, yl, xl;
   int64_t ter_cost;
   heap_t q;
-  int64_t cost_matrix[7][11] = {
+  int64_t cost_matrix[4][11] = {
     {1, INT_MAX, INT_MAX, 10, 10, 10, 20, 12, INT_MAX, INT_MAX, 10},      // pc
     {1, INT_MAX, INT_MAX, 10, 50, 50, 15, 12, 15, 15, INT_MAX},           // hiker
     {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 12, INT_MAX, INT_MAX, INT_MAX}, // rival
+    {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 12, INT_MAX, INT_MAX, INT_MAX}, // others
   };
 
   path_t *u;
@@ -838,6 +839,7 @@ void print_map(map_t *m)
       break;
     case trainer_sentry:
       c = 's';
+      break;
     case trainer_explorer:
       c = 'e';
       break;

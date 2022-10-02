@@ -1,3 +1,5 @@
+all: poke327
+
 prod: poke327.c heap.c heap.h map.c map.h world.c world.h trainer.c trainer.h utility.h
 	gcc -Wall -Werror -c trainer.c -o trainer.o
 	gcc -Wall -Werror -c map.c -o map.o
@@ -5,6 +7,9 @@ prod: poke327.c heap.c heap.h map.c map.h world.c world.h trainer.c trainer.h ut
 	gcc -Wall -Werror -c world.c -o world.o
 	gcc -Wall -Werror -c poke327.c -o poke327.o
 	gcc -Wall -Werror poke327.o map.o heap.o world.o trainer.o -o poke327
+
+poke327: poke327.o heap.o map.o world.o trainer.o
+	gcc -Wall -Werror -g poke327.o map.o heap.o world.o trainer.o -o poke327
 
 poke327.o: poke327.c heap.h map.h
 	gcc -Wall -g poke327.c -o poke327.o -c

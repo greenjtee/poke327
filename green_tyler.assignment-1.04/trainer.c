@@ -11,16 +11,9 @@ extern world_t world;
 
 void place_trainers() {
     uint8_t i, j;
-
-    trainer_t hiker;
-    trainer_t rival;
     uint8_t done;
 
-    hiker.type = trainer_hiker;
-    rival.type = trainer_rival;
-
     for (i = 0; i < world.num_trainers; i++) {
-        world.cur_map->trainers[i] = hiker;
         world.cur_map->trainers[i].pos[dim_x] = 0;
         world.cur_map->trainers[i].pos[dim_y] = 0;
     }
@@ -30,9 +23,9 @@ void place_trainers() {
         return;
     } else if (world.num_trainers == 1) {
         if (rand() % 2) { // randomly pick a hiker or rival to place
-            world.cur_map->trainers[1] = hiker;
+            world.cur_map->trainers[0].type = trainer_hiker;
         } else {
-            world.cur_map->trainers[1] = rival;
+            world.cur_map->trainers[0].type = trainer_rival;
         }
 
         done = 0;
@@ -46,6 +39,9 @@ void place_trainers() {
                 done = 1;
             }
         }
+        world.cur_map->trainers[i].direction = (rand()%2) * 2 - 1;
+        world.cur_map->trainers[i].heading = rand()%2;
+
     } else {
         // place hiker
         done = 0;
@@ -60,6 +56,8 @@ void place_trainers() {
             }
         }
         world.cur_map->trainers[0].type = trainer_hiker;
+        world.cur_map->trainers[0].direction = (rand()%2) * 2 - 1;
+        world.cur_map->trainers[0].heading = rand()%2;
 
         // place rival
         done = 0;
@@ -82,6 +80,8 @@ void place_trainers() {
         }
 
         world.cur_map->trainers[1].type = trainer_rival;
+        world.cur_map->trainers[1].direction = (rand()%2) * 2 - 1;
+        world.cur_map->trainers[1].heading = rand()%2;
 
         // place remaining trainers
         for (i = 2; i < world.num_trainers; i++) { // place trainer number i
@@ -108,6 +108,8 @@ void place_trainers() {
                 }
 
                 world.cur_map->trainers[i].type = (rand() % (trainer_num-1)) + 1;
+                world.cur_map->trainers[i].direction = (rand()%2) * 2 - 1;
+                world.cur_map->trainers[i].heading = rand()%2;
             }
 
             // printf("trainer %d at %d %d\n", world.cur_map->trainers[i].type, world.cur_map->trainers[i].pos[dim_x], world.cur_map->trainers[i].pos[dim_y]);
@@ -123,7 +125,7 @@ void place_trainers() {
     }
 }
 
-uint32_t getMaxDescent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *t, pair_t *to) {
+uint32_t getMaxDescent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *t, pair_t to) {
     uint32_t maxDescent = INT_MAX; // quickest descent is terrain with lowest cost
     uint32_t gradient;
     int8_t i, j, k, occupied;
@@ -160,8 +162,8 @@ uint32_t getMaxDescent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *t
                     }
                 }
                 maxDescent = gradient;
-                (*to)[dim_y] = t->pos[dim_y] + i;
-                (*to)[dim_x] = t->pos[dim_x] + j;
+                to[dim_y] = t->pos[dim_y] + i;
+                to[dim_x] = t->pos[dim_x] + j;
             }
         }
     }
@@ -169,8 +171,11 @@ uint32_t getMaxDescent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *t
     return maxDescent;
 }
 
-uint32_t getNextMove(world_t *world, trainer_t *t, pair_t *to) {
+uint32_t getNextMove(trainer_t *t, pair_t to) {
     uint32_t max = INT_MAX;
+    int32_t newX, newY;
+    uint32_t k, cost;
+    uint8_t occupied;
 
     switch (t->type) {
         /*
@@ -182,22 +187,134 @@ uint32_t getNextMove(world_t *world, trainer_t *t, pair_t *to) {
         */
 
         case trainer_hiker:
-            max = getMaxDescent(world->cur_map->trainers, world->hiker_cost_map, t, to);
-            t->pos[dim_x] = (*to)[dim_x];
-            t->pos[dim_y] = (*to)[dim_y];
+            max = getMaxDescent(world.cur_map->trainers, world.hiker_cost_map, t, to);
+            t->pos[dim_x] = to[dim_x];
+            t->pos[dim_y] = to[dim_y];
             break;
         case trainer_rival:
-            max = getMaxDescent(world->cur_map->trainers, world->rival_cost_map, t, to);
-            t->pos[dim_x] = (*to)[dim_x];
-            t->pos[dim_y] = (*to)[dim_y];
+            max = getMaxDescent(world.cur_map->trainers, world.rival_cost_map, t, to);
+            t->pos[dim_x] = to[dim_x];
+            t->pos[dim_y] = to[dim_y];
             break;
         case trainer_pacer:
+            newX = t->pos[dim_x];
+            newY = t->pos[dim_y];
+
+            if (t->heading) { // N/S pacer
+                newY = t->pos[dim_y] + t->direction;
+            } else { // E/W pacer
+                newX = t->pos[dim_x] + t->direction;
+            }
+
+            if (newX < (MAP_X-1) && newX > 0 && newY < (MAP_Y-1) && newY > 0) {
+                occupied = 0;
+
+                for (k = 0; k < world.num_trainers; k++) {
+                    if (world.cur_map->trainers[k].pos[dim_y] == newY && world.cur_map->trainers[k].pos[dim_x] == newX) { // if space is occupied by another trainer
+                        occupied = 1;
+                        break;
+                    }
+                }
+
+                cost = world.rival_cost_map[newY][newX].cost;
+                if (!occupied && cost != INT_MAX && (world.pc.pos[dim_y] != newY || world.pc.pos[dim_x] != newX)) { // cant move to pc location
+                    to[dim_y] = newY; //t->pos[dim_y];
+                    to[dim_x] = newX;
+                    return cost;
+                }
+
+            }
+
+            // turn around if we made it this far
+            t->direction *= -1;
+            
+            // stay in the same place until next turn
+            to[dim_x] = t->pos[dim_x];
+            to[dim_y] = t->pos[dim_y];
+
+            return 30; // turnaround cost
             break;
         case trainer_wanderer:
+            newX = t->pos[dim_x];
+            newY = t->pos[dim_y];
+
+            if (t->heading) { // moving n/s
+                newY = t->pos[dim_y] + t->direction;
+            } else { // moving e/w
+                newX = t->pos[dim_x] + t->direction;
+            }
+
+            if (newX < (MAP_X-1) && newX > 0 && newY < (MAP_Y-1) && newY > 0) {
+                occupied = 0;
+
+                for (k = 0; k < world.num_trainers; k++) {
+                    if (world.cur_map->trainers[k].pos[dim_y] == newY && world.cur_map->trainers[k].pos[dim_x] == newX) { // if space is occupied by another trainer
+                        occupied = 1;
+                        break;
+                    }
+                }
+
+                cost = world.rival_cost_map[newY][newX].cost;
+                if (!occupied && cost != INT_MAX && (world.pc.pos[dim_y] != newY || world.pc.pos[dim_x] != newX)
+                     && world.cur_map->map[newY][newX] == world.cur_map->map[t->pos[dim_y]][t->pos[dim_x]]) { // cant move to pc location or out of current terrain region
+                    to[dim_y] = newY;
+                    to[dim_x] = newX;
+                    return cost;
+                }
+            }
+
+            // turn around if we made it this far
+            t->direction = (rand() % 2) * 2 - 1;
+            t->heading = rand() % 2;
+            
+            // stay in the same place until next turn
+            to[dim_x] = t->pos[dim_x];
+            to[dim_y] = t->pos[dim_y];
+
+            return 30; // turnaround cost
             break;
-        case trainer_sentry:
+        case trainer_sentry: // sentries dont move
+            to[dim_y] = t->pos[dim_y];
+            to[dim_x] = t->pos[dim_x];
             break;
         case trainer_explorer:
+            newX = t->pos[dim_x];
+            newY = t->pos[dim_y];
+
+            if (t->heading) { // moving n/s
+                newY = t->pos[dim_y] + t->direction;
+            } else { // moving e/w
+                newX = t->pos[dim_x] + t->direction;
+            }
+
+            if (newX < (MAP_X-1) && newX > 0 && newY < (MAP_Y-1) && newY > 0) {
+                occupied = 0;
+
+                for (k = 0; k < world.num_trainers; k++) {
+                    if (world.cur_map->trainers[k].pos[dim_y] == newY && world.cur_map->trainers[k].pos[dim_x] == newX) { // if space is occupied by another trainer
+                        occupied = 1;
+                        break;
+                    }
+                }
+
+                cost = world.rival_cost_map[newY][newX].cost;
+                if (!occupied && cost != INT_MAX && (world.pc.pos[dim_y] != newY || world.pc.pos[dim_x] != newX)) { // cant move to pc location
+                    to[dim_y] = newY;
+                    to[dim_x] = newX;
+                    return cost;
+                }
+            }
+
+            // turn around if we made it this far
+            t->direction = (rand() % 2) * 2 - 1;
+            t->heading = rand() % 2;
+            
+            // stay in the same place until next turn
+            to[dim_x] = t->pos[dim_x];
+            to[dim_y] = t->pos[dim_y];
+
+            return 30; // turnaround cost
+ 
             break;
         case trainer_pc:
         case trainer_num:
