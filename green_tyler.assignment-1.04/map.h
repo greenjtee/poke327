@@ -2,19 +2,10 @@
 #define MAP_H
 
 #include "heap.h"
-#include "trainer.h"
 #include "utility.h"
 #include <inttypes.h>
+#include "trainer.h"
 
-typedef struct path {
-  heap_node_t *hn;
-  uint8_t pos[2];
-  uint8_t from[2];
-  int32_t cost;
-} path_t;
-
-#define MAP_X              80
-#define MAP_Y              21
 #define MIN_TREES          10
 #define MIN_BOULDERS       10
 #define TREE_PROB          95
@@ -36,15 +27,15 @@ typedef enum terrain_type {
   ter_clearing,
   ter_mountain,
   ter_forest,
-  ter_exit,
-  ter_trainer
+  ter_exit
 } terrain_type_t;
 
 typedef struct map {
   terrain_type_t map[MAP_Y][MAP_X];
   uint8_t height[MAP_Y][MAP_X];
   uint8_t n, s, e, w;
-  trainer_t trainers[trainer_num];
+  trainer_t* trainers;
+  heap_t trainer_queue;
 } map_t;
 
 typedef struct queue_node {

@@ -9,15 +9,19 @@
 #include <sys/time.h>
 #include <assert.h>
 
-#include "map.h"
+#include "trainer.h"
 #include "heap.h"
 #include "world.h"
-#include "trainer.h"
+#include "map.h"
 
 extern world_t world;
 
 int32_t path_cmp(const void *key, const void *with) {
   return ((path_t *) key)->cost - ((path_t *) with)->cost;
+}
+
+int32_t trainer_cmp(const void *a, const void *b) {
+  return ((trainer_t *) a)->nextMove - ((trainer_t *) b)->nextMove;
 }
 
 int32_t edge_penalty(uint8_t x, uint8_t y)
@@ -127,11 +131,10 @@ void dijkstra_map(map_t *m, path_t cost_map[MAP_Y][MAP_X], pair_t from, trainer_
   int32_t y, x, yl, xl;
   int64_t ter_cost;
   heap_t q;
-  int64_t cost_matrix[4][11] = {
-    {1, INT_MAX, INT_MAX, 10, 10, 10, 20, 10, INT_MAX, INT_MAX, 10},
-    {1, INT_MAX, INT_MAX, 10, 50, 50, 15, 10, 15, 15, INT_MAX},
-    {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 10, INT_MAX, INT_MAX, INT_MAX},
-    {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 10, INT_MAX, INT_MAX, INT_MAX}
+  int64_t cost_matrix[7][11] = {
+    {1, INT_MAX, INT_MAX, 10, 10, 10, 20, 12, INT_MAX, INT_MAX, 10},      // pc
+    {1, INT_MAX, INT_MAX, 10, 50, 50, 15, 12, 15, 15, INT_MAX},           // hiker
+    {1, INT_MAX, INT_MAX, 10, 50, 50, 20, 12, INT_MAX, INT_MAX, INT_MAX}, // rival
   };
 
   path_t *u;
@@ -149,7 +152,11 @@ void dijkstra_map(map_t *m, path_t cost_map[MAP_Y][MAP_X], pair_t from, trainer_
   heap_init(&q, path_cmp, NULL);
   for (y = 1; y < MAP_Y - 1; y++) {
     for (x = 1; x < MAP_X - 1; x++) {
-      cost_map[y][x].hn = heap_insert(&q, &(cost_map[y][x]));
+      if (cost_map[y][x].cost != INT_MAX) {
+        cost_map[y][x].hn = heap_insert(&q, &(cost_map[y][x]));
+      } else {
+        cost_map[y][x].hn = NULL;
+      }
       // if (!cost_map[y][x].hn) {
       //   printf("%d, %d\n", x, y);
       // }
@@ -177,7 +184,8 @@ void dijkstra_map(map_t *m, path_t cost_map[MAP_Y][MAP_X], pair_t from, trainer_
           if (cost_map[yl+y][xl+x].hn) {
             heap_decrease_key_no_replace(&q, cost_map[yl+y][xl+x].hn);
           } else {
-            printf("%d, %d\n", xl+x, yl+y);
+            cost_map[yl+y][xl+x].hn = heap_insert(&q, &(cost_map[yl+y][xl+x]));
+            // printf("%d, %d\n", xl+x, yl+y);
           }
         }
       }
@@ -707,6 +715,10 @@ int new_map()
     world.world[world.cur_idx[dim_y]][world.cur_idx[dim_x]] =
     malloc(sizeof (*world.cur_map));
 
+  world.cur_map->trainers = (trainer_t*)malloc(sizeof(trainer_t) * world.num_trainers);
+  heap_init(&world.cur_map->trainer_queue, trainer_cmp, 0);
+  // world.pc.n = heap_insert(&world.cur_map->trainer_queue, &world.pc);
+
   smooth_height(world.cur_map);
   
   if (!world.cur_idx[dim_y]) {
@@ -754,50 +766,95 @@ int new_map()
     place_center(world.cur_map);
   }
 
+	place_trainers(world.cur_map);
+
   return 0;
 }
 
 void print_map(map_t *m)
 {
   int x, y;
+  uint8_t i;
+
   int default_reached = 0;
+
+  char map_to_print[MAP_Y][MAP_X+1] = {0};
+  memset(map_to_print, ' ', MAP_X*MAP_Y);
   
   for (y = 0; y < MAP_Y; y++) {
     for (x = 0; x < MAP_X; x++) {
       switch (m->map[y][x]) {
       case ter_boulder:
       case ter_mountain:
-        putchar('%');
+        map_to_print[y][x] = '%';
         break;
       case ter_tree:
       case ter_forest:
-        putchar('^');
+        map_to_print[y][x] = '^';
         break;
       case ter_path:
-        putchar('#');
+        map_to_print[y][x] = '#';
         break;
       case ter_mart:
-        putchar('M');
+        map_to_print[y][x] = 'M';
         break;
       case ter_center:
-        putchar('C');
+        map_to_print[y][x] = 'C';
         break;
       case ter_grass:
-        putchar(':');
+        map_to_print[y][x] = ':';
         break;
       case ter_clearing:
-        putchar('.');
-        break;
-      case ter_trainer:
-        putchar('@'); //TODO: update with actual trainer character
+        map_to_print[y][x] = '.';
         break;
       default:
         default_reached = 1;
         break;
       }
+      
+      // printf("%s\n", (char*)map_to_print);
     }
-    putchar('\n');
+
+    map_to_print[y][x] = '\n';
+    map_to_print[y][x+1] = 0;
   }
+  
+  for (i = 0; i < world.num_trainers; i++) {
+    trainer_type_t t = m->trainers[i].type;
+    char c = '_';
+
+    switch (t) {
+    case trainer_hiker:
+      c = 'h';
+      break;
+    case trainer_rival:
+      c = 'r';
+      break;
+    case trainer_pacer:
+      c = 'p';
+      break;
+    case trainer_wanderer:
+      c = 'w';
+      break;
+    case trainer_sentry:
+      c = 's';
+    case trainer_explorer:
+      c = 'e';
+      break;
+    default:
+      default_reached = 1;
+      break;
+    }
+
+    // c = '=';
+
+    map_to_print[m->trainers[i].pos[dim_y]][m->trainers[i].pos[dim_x]] = c;
+    // printf("---------------------------\n");
+  }
+
+  map_to_print[world.pc.pos[dim_y]][world.pc.pos[dim_x]] = '@';
+
+  printf("%s\n", (char*)map_to_print);
 
   if (default_reached) {
     fprintf(stderr, "Default reached in %s\n", __FUNCTION__);
@@ -809,7 +866,7 @@ void print_cost_map(path_t cm[MAP_Y][MAP_X]) {
   for (y = 0; y < MAP_Y; y++) {
     for(x = 0; x < MAP_X; x++) {
       if (cm[y][x].cost != INT_MAX) {
-        printf("%2d ", cm[y][x].cost % 100);
+        printf("%3d ", cm[y][x].cost % 1000);
       } else {
         printf("   ");
       }

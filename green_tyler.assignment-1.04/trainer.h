@@ -1,13 +1,16 @@
 #ifndef TRAINER_H
 #define TRAINER_H
 
+// #include "map.h"
+// #include "world.h"
 #include "utility.h"
+
+typedef struct world world_t;
 
 typedef enum trainer_type {
   trainer_pc,
   trainer_hiker,
   trainer_rival,
-  trainer_other,
   trainer_pacer,
   trainer_wanderer,
   trainer_sentry,
@@ -18,6 +21,12 @@ typedef enum trainer_type {
 typedef struct trainer {
     pair_t pos;
     trainer_type_t type;
+    int32_t nextMove;
+    heap_node_t* n;
 } trainer_t;
+
+void place_trainers();
+uint32_t getNextMove(world_t *world, trainer_t *t, pair_t *to);
+uint32_t getMaxDescent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *pos, pair_t *to);
 
 #endif
