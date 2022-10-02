@@ -23,10 +23,9 @@ void delete_world()
 
   for (y = 0; y < WORLD_SIZE; y++) {
     for (x = 0; x < WORLD_SIZE; x++) {
-      // if (world.world[y][x]) {
-        // heap_delete(&world.world[y][x]->trainer_queue);
-      // }
       if (world.world[y][x]) {
+        heap_delete(&world.world[y][x]->trainer_queue);
+        free(world.world[y][x]->trainers);
         free(world.world[y][x]);
         world.world[y][x] = NULL;
 

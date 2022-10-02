@@ -89,10 +89,7 @@ int main(int argc, char* argv[]) {
 			lastPos[dim_y] = world.pc.pos[dim_y];
 
 			print_map(world.cur_map);
-			// print_cost_map(world.rival_cost_map);
 			usleep(250000);
-			// getchar();
-
 		}
 
 		// print_cost_map(world.hiker_cost_map);
