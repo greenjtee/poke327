@@ -199,6 +199,9 @@ uint32_t getNextMove(world_t *world, trainer_t *t, pair_t *to) {
             break;
         case trainer_explorer:
             break;
+        case trainer_pc:
+        case trainer_num:
+            break;
     }
 
     return max;

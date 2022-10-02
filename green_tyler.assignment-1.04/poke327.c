@@ -15,9 +15,9 @@ extern world_t world;
 
 int main(int argc, char* argv[]) {
 	uint8_t playing = 1;
-	int16_t flyX = 0, flyY = 0;
+	// int16_t flyX = 0, flyY = 0;
 	uint8_t argi = 0;
-	uint32_t i;
+	// uint32_t i;
 	world.num_trainers = DEFAULT_NUM_TRAINERS;
 	world.time = 0;
 
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 	// pc[dim_y] = 5;
 
 
-	char command[4] = {0};
+	// char command[4] = {0};
 	time_t seed = time(NULL);
 
 	for (argi = 0; argi < argc; argi++) {
