@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 		pair_t to;
 		trainer_t* nextUp = heap_remove_min(&world.cur_map->trainer_queue);
 		if (nextUp) {
-			uint32_t minCost = getNextMove(nextUp, to);
+			uint32_t minCost = get_next_move(nextUp, to);
 			
 			if (minCost != INT_MAX) {
 				nextUp->nextMove = world.time + minCost;

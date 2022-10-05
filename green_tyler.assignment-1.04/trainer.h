@@ -28,7 +28,7 @@ typedef struct trainer {
 } trainer_t;
 
 void place_trainers();
-uint32_t getNextMove(trainer_t *t, pair_t to);
-uint32_t getMaxDescent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *pos, pair_t to);
+uint32_t get_next_move(trainer_t *t, pair_t to);
+uint32_t get_max_descent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *pos, pair_t to);
 
 #endif

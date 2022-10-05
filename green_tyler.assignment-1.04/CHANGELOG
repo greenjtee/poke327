@@ -42,6 +42,9 @@
 ### Added
  - 2022-09-26
   - added utility and trainer files to organize new features
+ - 2022-10-02
+  - created heap for player next move storage
+  - wrote function for getting the next movement position of a trainer
 
 ### Updated
  - 2022-09-26

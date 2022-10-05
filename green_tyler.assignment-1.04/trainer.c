@@ -125,7 +125,7 @@ void place_trainers() {
     }
 }
 
-uint32_t getMaxDescent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *t, pair_t to) {
+uint32_t get_max_descent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *t, pair_t to) {
     uint32_t maxDescent = INT_MAX; // quickest descent is terrain with lowest cost
     uint32_t gradient;
     int8_t i, j, k, occupied;
@@ -171,7 +171,7 @@ uint32_t getMaxDescent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t *t
     return maxDescent;
 }
 
-uint32_t getNextMove(trainer_t *t, pair_t to) {
+uint32_t get_next_move(trainer_t *t, pair_t to) {
     uint32_t max = INT_MAX;
     int32_t newX, newY;
     uint32_t k, cost;
@@ -187,12 +187,12 @@ uint32_t getNextMove(trainer_t *t, pair_t to) {
         */
 
         case trainer_hiker:
-            max = getMaxDescent(world.cur_map->trainers, world.hiker_cost_map, t, to);
+            max = get_max_descent(world.cur_map->trainers, world.hiker_cost_map, t, to);
             t->pos[dim_x] = to[dim_x];
             t->pos[dim_y] = to[dim_y];
             break;
         case trainer_rival:
-            max = getMaxDescent(world.cur_map->trainers, world.rival_cost_map, t, to);
+            max = get_max_descent(world.cur_map->trainers, world.rival_cost_map, t, to);
             t->pos[dim_x] = to[dim_x];
             t->pos[dim_y] = to[dim_y];
             break;
