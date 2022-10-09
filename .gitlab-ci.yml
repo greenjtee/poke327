@@ -7,6 +7,6 @@ build-job:
     stage: build
     before_script: 
         - apt update
-        - apt install -y build-essential
+        - apt install -y build-essential libncurses-dev
     script:
         - make prod
