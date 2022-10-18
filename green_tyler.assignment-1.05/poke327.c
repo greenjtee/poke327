@@ -26,7 +26,7 @@ void display_trainer_list(uint8_t start_index) {
 	int16_t x, y;
 	char c;
 	move(0,0);
-	printw("--------------------------------------------------------------------------------");
+	printw("- trainers ---------------------------------------------------------------------");
 
 	for (i = 0; i < MAP_Y-2 && (i+start_index) < world.num_trainers; i++) {
 		clrtoeol();
@@ -230,14 +230,20 @@ int main(int argc, char* argv[]) {
 					displayMenu = menu_trainer_list;
 					break;
 				case KEY_UP: // scroll up trainer list
-					if (trainer_start_index > 0)
+					if (displayMenu == menu_trainer_list && trainer_start_index > 0) {
 						trainer_start_index--;
+					} else {
+						valid_input = 0;
+					}
 					break;
 				case KEY_DOWN: // scroll down trainer list
-					if (trainer_start_index < world.num_trainers)
+					if (displayMenu == menu_trainer_list && trainer_start_index < world.num_trainers) {
 						trainer_start_index++;
+					} else {
+						valid_input = 0;
+					}
 					break;
-				case 'v':
+				case 'v': // faster than pressing escape so I added this one
 				case 27: // escape - return to character control from trainer list
 					displayMenu = menu_map;
 					skip_queue = 1;
