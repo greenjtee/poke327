@@ -121,6 +121,7 @@ void place_trainers() {
 
     for (i = 0; i < world.num_trainers; i++) {
         world.cur_map->trainers[i].nextMove = 0;
+        world.cur_map->trainers[i].defeated = 0;
         world.cur_map->trainers[i].n = heap_insert(&world.cur_map->trainer_queue, &world.cur_map->trainers[i]);
     }
 }
@@ -148,12 +149,12 @@ uint32_t get_max_descent(trainer_t *others, path_t map[MAP_Y][MAP_X], trainer_t 
                     occupied = 1;
                     break;
                 }
-
             }
 
-            if (world.pc.pos[dim_y] == t->pos[dim_y] + i && world.pc.pos[dim_x] == t->pos[dim_x] + j) { // cant move to pc location
-                occupied = 1;
-            }
+            // now we battle!
+            // if (world.pc.pos[dim_y] == t->pos[dim_y] + i && world.pc.pos[dim_x] == t->pos[dim_x] + j) { // cant move to pc location
+                // occupied = 1;
+            // }
 
             if (!occupied && gradient <= maxDescent) {
                 if (gradient == maxDescent) { // two paths with same cost, randomly pick to swap or stay
@@ -187,14 +188,26 @@ uint32_t get_next_move(trainer_t *t, pair_t to) {
         */
 
         case trainer_hiker:
-            max = get_max_descent(world.cur_map->trainers, world.hiker_cost_map, t, to);
-            t->pos[dim_x] = to[dim_x];
-            t->pos[dim_y] = to[dim_y];
+            if (!t->defeated) {
+                max = get_max_descent(world.cur_map->trainers, world.hiker_cost_map, t, to);
+                // t->pos[dim_x] = to[dim_x];
+                // t->pos[dim_y] = to[dim_y];
+            } else {
+                // just dont move
+                to[dim_x] = t->pos[dim_x];
+                to[dim_y] = t->pos[dim_y];
+            }
             break;
         case trainer_rival:
-            max = get_max_descent(world.cur_map->trainers, world.rival_cost_map, t, to);
-            t->pos[dim_x] = to[dim_x];
-            t->pos[dim_y] = to[dim_y];
+            if (!t->defeated) {
+                max = get_max_descent(world.cur_map->trainers, world.rival_cost_map, t, to);
+                // t->pos[dim_x] = to[dim_x];
+                // t->pos[dim_y] = to[dim_y];
+            } else {
+                // just dont move
+                to[dim_x] = t->pos[dim_x];
+                to[dim_y] = t->pos[dim_y];
+            }
             break;
         case trainer_pacer:
             newX = t->pos[dim_x];
@@ -328,12 +341,20 @@ int move_pc(int16_t y, int16_t x) {
   int16_t newY = world.pc.pos[dim_y] + y;
   int16_t newX = world.pc.pos[dim_x] + x;
 
+  uint8_t i;
+
   if (newY < 0 || newY > (MAP_Y-1) || newX < 0 || newX > (MAP_X-1)) {
-    return -1;
+    return STATUS_MOVE_ERROR;
   }
 
   if (world.pc_cost_map[newY][newX].cost == INT_MAX) {
-    return -1;
+    return STATUS_MOVE_ERROR;
+  }
+
+  for (i = 0; i < world.num_trainers; i++) {
+    if (newY == world.cur_map->trainers[i].pos[dim_y] && newX == world.cur_map->trainers[i].pos[dim_x] && !world.cur_map->trainers[i].defeated) { // pc tried to move to trainer location, battle!
+        return STATUS_BATTLE;
+    }
   }
 
   world.pc.pos[dim_y] = newY;

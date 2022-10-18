@@ -5,6 +5,9 @@
 // #include "world.h"
 #include "utility.h"
 
+#define STATUS_BATTLE 3
+#define STATUS_MOVE_ERROR -1
+
 typedef struct world world_t;
 
 typedef enum trainer_type {
@@ -25,6 +28,7 @@ typedef struct trainer {
     heap_node_t* n;
     int8_t direction;
     int8_t heading;
+    uint8_t defeated;
 } trainer_t;
 
 void place_trainers();

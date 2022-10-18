@@ -12,13 +12,17 @@
 #include "world.h"
 #include "trainer.h"
 
+#define STATUS_CENTER_ERROR 2
+#define STATUS_NOOP 1
+
 extern world_t world;
 
 typedef enum menu {
 	menu_map,
 	menu_trainer_list,
 	menu_pokemart,
-	menu_pokecenter
+	menu_pokecenter,
+	menu_battle
 } menu_t;
 
 void display_trainer_list(uint8_t start_index) {
@@ -80,7 +84,19 @@ void display_trainer_list(uint8_t start_index) {
 }
 
 void display_pokemart() {
+	move(0,0);
+	printw("- pokemart/pokecenter ----------------------------------------------------------");
+	move(MAP_Y-1,0);
+	printw("--------------------------------------------------------------------------------");
+}
 
+void display_battle(trainer_t* battling) {
+	move(0,0);
+	printw("- battle -----------------------------------------------------------------------");
+	move(MAP_Y-1,0);
+	printw("--------------------------------------------------------------------------------");
+
+	battling->defeated = 1;
 }
 
 int main(int argc, char* argv[]) {
@@ -95,6 +111,7 @@ int main(int argc, char* argv[]) {
 	menu_t displayMenu = menu_map;
 	uint8_t trainer_start_index = 0;
 	uint8_t skip_queue = 0;
+	trainer_t* battlingTrainer = NULL;
 	// char statusMessage[MAP_X] = {0};
 
 	world.num_trainers = DEFAULT_NUM_TRAINERS;
@@ -215,7 +232,7 @@ int main(int argc, char* argv[]) {
 						displayMenu = menu_pokemart;
 					} else {
 						// not on a valid spot
-						status = 2;
+						status = STATUS_CENTER_ERROR;
 					}
 					break;
 				case '<': // leave pokemart or pokecenter
@@ -261,14 +278,16 @@ int main(int argc, char* argv[]) {
 				valid_input = 0;
 
 				// print reason for bad input
-				if (status == -1) {
+				if (status == STATUS_MOVE_ERROR) {
 					// sprintf(statusMessage, "Error: ")
 					mvaddstr(WINDOW_STATUS_TOP, 0, "Error: cant move here");
-				} else if (status == 1) {
+				} else if (status == STATUS_NOOP) {
 					//no op -- do nothing but wait for valid input from user
-				} else if (status == 2) {
+				} else if (status == STATUS_CENTER_ERROR) {
 					// tried to enter pokemart/pokecenter not at location
 					mvaddstr(WINDOW_STATUS_TOP, 0, "Error: cant enter pokemart/pokecenter from here");
+				} else if (status == STATUS_BATTLE) {
+					displayMenu = menu_battle;
 				}
 
 				refresh();
@@ -294,8 +313,18 @@ int main(int argc, char* argv[]) {
 					nextUp = heap_remove_min(&world.cur_map->trainer_queue);
 					while (nextUp != &world.pc) {
 						min_cost = get_next_move(nextUp, to);
+
+						if (to[dim_x] == world.pc.pos[dim_x] && to[dim_y] == world.pc.pos[dim_y] && !nextUp->defeated) { // tried to move to pc pos
+							displayMenu = menu_battle;
+							battlingTrainer = nextUp;
+
+							nextUp->nextMove = world.time + min_cost;
+							world.time = nextUp->nextMove;
+							heap_insert(&world.cur_map->trainer_queue, nextUp);
+							break;
+						}
 						
-						if (min_cost != INT_MAX) {
+						if (min_cost != INT_MAX) { // otherwise if min cost is not infinite
 							nextUp->nextMove = world.time + min_cost;
 							world.time = nextUp->nextMove;
 
@@ -306,16 +335,18 @@ int main(int argc, char* argv[]) {
 						nextUp = heap_remove_min(&world.cur_map->trainer_queue);
 					}
 
-					pc_last_pos[dim_x] = world.pc.pos[dim_x];
-					pc_last_pos[dim_y] = world.pc.pos[dim_y];
+					if (nextUp == &world.pc) { // pc may not be next up if the last trainer entered a battle
+						pc_last_pos[dim_x] = world.pc.pos[dim_x];
+						pc_last_pos[dim_y] = world.pc.pos[dim_y];
 
-					// print_map_nc(world.cur_map);
-					// refresh();
+						// print_map_nc(world.cur_map);
+						// refresh();
 
-					world.pc.nextMove = world.time + 10;
+						world.pc.nextMove = world.time + 10;
 
-					// mvaddstr(WINDOW_STATUS_TOP, 0, "Status: ");
-					heap_insert(&world.cur_map->trainer_queue, &world.pc);
+						// mvaddstr(WINDOW_STATUS_TOP, 0, "Status: ");
+						heap_insert(&world.cur_map->trainer_queue, &world.pc);
+					}
 
 				}
 				clear();
@@ -337,8 +368,15 @@ int main(int argc, char* argv[]) {
 			case menu_pokemart:
 				clear();
 				display_pokemart();
-				refresh();
 				// display_pokecenter();
+				refresh();
+				break;
+
+			case menu_battle:
+				clear();
+				display_battle(battlingTrainer);
+				refresh();
+
 				break;
 		}
 
