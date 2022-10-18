@@ -14,16 +14,87 @@
 
 extern world_t world;
 
+typedef enum menu {
+	menu_map,
+	menu_trainer_list,
+	menu_pokemart,
+	menu_pokecenter
+} menu_t;
+
+void display_trainer_list(uint8_t start_index) {
+	uint8_t i, j = 1;
+	int16_t x, y;
+	char c;
+	move(0,0);
+	printw("--------------------------------------------------------------------------------");
+
+	for (i = 0; i < MAP_Y-2 && (i+start_index) < world.num_trainers; i++) {
+		clrtoeol();
+		move(j++, 0);
+		switch (world.cur_map->trainers[i+start_index].type) {
+			case trainer_hiker:
+				c = 'h';
+				break;
+			case trainer_rival:
+				c = 'r';
+				break;
+			case trainer_pacer:
+				c = 'p';
+				break;
+			case trainer_wanderer:
+				c = 'w';
+				break;
+			case trainer_sentry:
+				c = 's';
+				break;
+			case trainer_explorer:
+				c = 'e';
+				break;
+			default:
+				c = '?';
+				break;
+
+		}
+
+		x = world.pc.pos[dim_x] - world.cur_map->trainers[i+start_index].pos[dim_x];
+		y = world.pc.pos[dim_y] - world.cur_map->trainers[i+start_index].pos[dim_y];
+
+		if (x < 0) {
+			if (y < 0) {
+				printw("%c, %d south and %d east", c, abs(y), abs(x));
+			} else {
+				printw("%c, %d north and %d east", c, abs(y), abs(x));
+			}
+		} else {
+			if (y < 0) {
+				printw("%c, %d south and %d west", c, abs(y), abs(x));
+			} else {
+				printw("%c, %d north and %d west", c, abs(y), abs(x));
+			}
+
+		}
+
+	}
+	move(MAP_Y-1,0);
+	printw("--------------------------------------------------------------------------------");
+}
+
+void display_pokemart() {
+
+}
+
 int main(int argc, char* argv[]) {
 	uint8_t playing = 1;
 	uint8_t argi = 0;
 	uint32_t ch;
-	uint8_t trainer_list_open = 0;
 	int32_t status = 0, valid_input = 0;
 	trainer_t* nextUp;
 	uint32_t min_cost;
 	pair_t pc_last_pos, to;
 	time_t seed = time(NULL);
+	menu_t displayMenu = menu_map;
+	uint8_t trainer_start_index = 0;
+	uint8_t skip_queue = 0;
 	// char statusMessage[MAP_X] = {0};
 
 	world.num_trainers = DEFAULT_NUM_TRAINERS;
@@ -76,50 +147,13 @@ int main(int argc, char* argv[]) {
 	init_pair(ter_forest, COLOR_GREEN, COLOR_BLACK);
 	init_pair(ter_exit, COLOR_WHITE, COLOR_BLACK);
 
-	refresh();
-
 	pc_last_pos[dim_x] = 0;
 	pc_last_pos[dim_y] = 0;
 
+	print_map_nc(world.cur_map);
+	refresh();
+
 	while(playing) {
-		new_map();
-
-		print_map_nc(world.cur_map);
-		refresh();
-
-		if (world.pc.pos[dim_x] != pc_last_pos[dim_x] || world.pc.pos[dim_y] != pc_last_pos[dim_y]) { // update cost map if pc position changed
-			dijkstra_map(world.cur_map, world.pc_cost_map, world.pc.pos, trainer_pc);
-			dijkstra_map(world.cur_map, world.hiker_cost_map, world.pc.pos, trainer_hiker);
-			dijkstra_map(world.cur_map, world.rival_cost_map, world.pc.pos, trainer_rival);
-		}
-
-		nextUp = heap_remove_min(&world.cur_map->trainer_queue);
-		while (nextUp != &world.pc) {
-			min_cost = get_next_move(nextUp, to);
-			
-			if (min_cost != INT_MAX) {
-				nextUp->nextMove = world.time + min_cost;
-				world.time = nextUp->nextMove;
-
-				nextUp->pos[dim_x] = to[dim_x];
-				nextUp->pos[dim_y] = to[dim_y];
-				heap_insert(&world.cur_map->trainer_queue, nextUp);
-			}
-			nextUp = heap_remove_min(&world.cur_map->trainer_queue);
-		}
-
-		pc_last_pos[dim_x] = world.pc.pos[dim_x];
-		pc_last_pos[dim_y] = world.pc.pos[dim_y];
-
-		print_map_nc(world.cur_map);
-		refresh();
-
-		// usleep(100000);
-
-		// print_cost_map(world.hiker_cost_map);
-
-		// mvaddstr(WINDOW_STATUS_TOP, 0, "Status: ");
-
 		valid_input = 0;
 		while(!valid_input) {
 			valid_input = 1;
@@ -128,65 +162,85 @@ int main(int argc, char* argv[]) {
 			switch(ch) {
 				case '7': // attempt to move pc upper left
 				case 'y':
-					if (!trainer_list_open) {
+					if (displayMenu == menu_map) {
 						status = move_pc(-1, -1);
 					}
 					break;
 				case '8': // attempt to move pc up
 				case 'k':
-					if (!trainer_list_open) {
+					if (displayMenu == menu_map) {
 						status = move_pc(-1, 0);
 					}
 					break;
 				case '9': // attempt to move pc upper right
 				case 'u':
-					if (!trainer_list_open) {
+					if (displayMenu == menu_map) {
 						status = move_pc(-1, 1);
 					}
 					break;
 				case '6': // attempt to move pc right
 				case 'l':
-					if (!trainer_list_open) {
+					if (displayMenu == menu_map) {
 						status = move_pc(0, 1);
 					}
 					break;
 				case '3': // attempt to move pc lower right
 				case 'n':
-					if (!trainer_list_open) {
+					if (displayMenu == menu_map) {
 						status = move_pc(1, 1);
 					}
 					break;
 				case '2': // attempt to move pc down
 				case 'j':
-					if (!trainer_list_open) {
+					if (displayMenu == menu_map) {
 						status = move_pc(1, 0);
 					}
 					break;
 				case '1': // attempt to move pc lower left
 				case 'b':
-					if (!trainer_list_open) {
+					if (displayMenu == menu_map) {
 						status = move_pc(1, -1);
 					}
 					break;
 				case '4': // attempt to move pc left
 				case 'h':
-					if (!trainer_list_open) {
+					if (displayMenu == menu_map) {
 						status = move_pc(0, -1);
 					}
 					break;
 				case '>': // attempt to enter pokecenter or pokemart
+					if (world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] == ter_center) {
+						displayMenu = menu_pokecenter;
+					} else if (world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] == ter_mart) {
+						displayMenu = menu_pokemart;
+					} else {
+						// not on a valid spot
+						status = 2;
+					}
+					break;
+				case '<': // leave pokemart or pokecenter
+					displayMenu = menu_map;
+					skip_queue = 1;
 					break;
 				case '5': // rest for turn
 				case ' ':
 				case '.':
 					break;
 				case 't': // display trainer list
+					displayMenu = menu_trainer_list;
 					break;
 				case KEY_UP: // scroll up trainer list
+					if (trainer_start_index > 0)
+						trainer_start_index--;
 					break;
 				case KEY_DOWN: // scroll down trainer list
+					if (trainer_start_index < world.num_trainers)
+						trainer_start_index++;
 					break;
+				case 'v':
 				case 27: // escape - return to character control from trainer list
+					displayMenu = menu_map;
+					skip_queue = 1;
 					break;
 				case 'Q': // quit game
 					playing = 0;
@@ -206,6 +260,9 @@ int main(int argc, char* argv[]) {
 					mvaddstr(WINDOW_STATUS_TOP, 0, "Error: cant move here");
 				} else if (status == 1) {
 					//no op -- do nothing but wait for valid input from user
+				} else if (status == 2) {
+					// tried to enter pokemart/pokecenter not at location
+					mvaddstr(WINDOW_STATUS_TOP, 0, "Error: cant enter pokemart/pokecenter from here");
 				}
 
 				refresh();
@@ -216,11 +273,68 @@ int main(int argc, char* argv[]) {
 				// mvaddstr(WINDOW_STATUS_TOP, 0, "");
 			}
 		}
+		
+		switch (displayMenu) {
+			case menu_map:
+				if (!skip_queue) {
+					new_map();
 
-		world.pc.nextMove = world.time + 10;
+					if (world.pc.pos[dim_x] != pc_last_pos[dim_x] || world.pc.pos[dim_y] != pc_last_pos[dim_y]) { // update cost map if pc position changed
+						dijkstra_map(world.cur_map, world.pc_cost_map, world.pc.pos, trainer_pc);
+						dijkstra_map(world.cur_map, world.hiker_cost_map, world.pc.pos, trainer_hiker);
+						dijkstra_map(world.cur_map, world.rival_cost_map, world.pc.pos, trainer_rival);
+					}
 
-		// mvaddstr(WINDOW_STATUS_TOP, 0, "Status: ");
-		heap_insert(&world.cur_map->trainer_queue, &world.pc);
+					nextUp = heap_remove_min(&world.cur_map->trainer_queue);
+					while (nextUp != &world.pc) {
+						min_cost = get_next_move(nextUp, to);
+						
+						if (min_cost != INT_MAX) {
+							nextUp->nextMove = world.time + min_cost;
+							world.time = nextUp->nextMove;
+
+							nextUp->pos[dim_x] = to[dim_x];
+							nextUp->pos[dim_y] = to[dim_y];
+							heap_insert(&world.cur_map->trainer_queue, nextUp);
+						}
+						nextUp = heap_remove_min(&world.cur_map->trainer_queue);
+					}
+
+					pc_last_pos[dim_x] = world.pc.pos[dim_x];
+					pc_last_pos[dim_y] = world.pc.pos[dim_y];
+
+					// print_map_nc(world.cur_map);
+					// refresh();
+
+					world.pc.nextMove = world.time + 10;
+
+					// mvaddstr(WINDOW_STATUS_TOP, 0, "Status: ");
+					heap_insert(&world.cur_map->trainer_queue, &world.pc);
+
+				}
+				clear();
+				print_map_nc(world.cur_map);
+				refresh();
+
+				skip_queue = 0;
+
+				break;
+			
+			case menu_trainer_list:
+				clear();
+				display_trainer_list(trainer_start_index);
+				refresh();
+
+				break;
+
+			case menu_pokecenter:
+			case menu_pokemart:
+				clear();
+				display_pokemart();
+				refresh();
+				// display_pokecenter();
+				break;
+		}
 
 	}
 
