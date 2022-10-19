@@ -13,7 +13,6 @@
 #include "trainer.h"
 
 #define STATUS_CENTER_ERROR 2
-#define STATUS_NOOP 1
 #define STATUS_OK 0
 #define STATUS_END 3
 #define STATUS_BEGINNING 4
@@ -294,8 +293,6 @@ int main(int argc, char* argv[]) {
 				if (status == STATUS_MOVE_ERROR) {
 					// sprintf(statusMessage, "Error: ")
 					mvaddstr(WINDOW_STATUS_TOP, 0, "Error: cant move here");
-				} else if (status == STATUS_NOOP) {
-					//no op -- do nothing but wait for valid input from user
 				} else if (status == STATUS_CENTER_ERROR) {
 					// tried to enter pokemart/pokecenter not at location
 					mvaddstr(WINDOW_STATUS_TOP, 0, "Error: cant enter pokemart/pokecenter from here");
