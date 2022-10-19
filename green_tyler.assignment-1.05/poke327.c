@@ -14,6 +14,9 @@
 
 #define STATUS_CENTER_ERROR 2
 #define STATUS_NOOP 1
+#define STATUS_OK 0
+#define STATUS_END 3
+#define STATUS_BEGINNING 4
 
 extern world_t world;
 
@@ -230,6 +233,7 @@ int main(int argc, char* argv[]) {
 						displayMenu = menu_pokecenter;
 					} else if (world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] == ter_mart) {
 						displayMenu = menu_pokemart;
+						status = STATUS_OK;
 					} else {
 						// not on a valid spot
 						status = STATUS_CENTER_ERROR;
@@ -238,35 +242,44 @@ int main(int argc, char* argv[]) {
 				case '<': // leave pokemart or pokecenter
 					displayMenu = menu_map;
 					skip_queue = 1;
+					status = STATUS_OK;
 					break;
 				case '5': // rest for turn
 				case ' ':
 				case '.':
+					status = STATUS_OK;
 					break;
 				case 't': // display trainer list
 					displayMenu = menu_trainer_list;
+					status = STATUS_OK;
 					break;
 				case KEY_UP: // scroll up trainer list
 					if (displayMenu == menu_trainer_list && trainer_start_index > 0) {
 						trainer_start_index--;
+						status = STATUS_OK;
 					} else {
 						valid_input = 0;
+						status = STATUS_BEGINNING;
 					}
 					break;
 				case KEY_DOWN: // scroll down trainer list
 					if (displayMenu == menu_trainer_list && trainer_start_index < world.num_trainers) {
 						trainer_start_index++;
+						status = STATUS_OK;
 					} else {
 						valid_input = 0;
+						status = STATUS_END;
 					}
 					break;
 				case 'v': // faster than pressing escape so I added this one
 				case 27: // escape - return to character control from trainer list
 					displayMenu = menu_map;
 					skip_queue = 1;
+					status = STATUS_OK;
 					break;
 				case 'Q': // quit game
 					playing = 0;
+					status = STATUS_OK;
 					break;
 				default:
 					status = 1;
