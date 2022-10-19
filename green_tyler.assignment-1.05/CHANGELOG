@@ -52,4 +52,14 @@
 
 ## [1.05]
 ### Added
+ - 2022-10-16
+  - added support for ncurses map printing
+  - added ncurses unbuffered input
+  - added player movement with ncurses input
+ - 2022-10-18
+  - added trainer battles menu
+  - added trainer list menu
+  - added pokecenter/pokemart menu
 ### Updated
+ - 2022-10-16
+ - updated input to allow pc movement
