@@ -341,9 +341,11 @@ int move_pc(int16_t y, int16_t x) {
   int16_t newY = world.pc.pos[dim_y] + y;
   int16_t newX = world.pc.pos[dim_x] + x;
 
+  // for now, don't let pc move to any edges
+
   uint8_t i;
 
-  if (newY < 0 || newY > (MAP_Y-1) || newX < 0 || newX > (MAP_X-1)) {
+  if (newY < 1 || newY > (MAP_Y-2) || newX < 1 || newX > (MAP_X-2)) {
     return STATUS_MOVE_ERROR;
   }
 
