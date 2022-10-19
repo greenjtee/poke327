@@ -175,6 +175,7 @@ int main(int argc, char* argv[]) {
 	while(playing) {
 		valid_input = 0;
 		while(!valid_input) {
+			status = STATUS_OK;
 			valid_input = 1;
 			ch = getch();
 
