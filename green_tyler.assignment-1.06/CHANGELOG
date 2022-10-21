@@ -67,5 +67,11 @@
 ## [1.06]
 ### Added
  - 2022-10-20
+  - added class for map
+  - added class for character
+  - added class for player
+  - added class for trainer
+  - added class for world
+  - refactored old code for cpp
 ### Updated
  - 2022-10-20
