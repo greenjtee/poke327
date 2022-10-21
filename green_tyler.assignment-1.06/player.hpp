@@ -7,7 +7,7 @@ class player : public character {
 private:
 
 public:
-    player();
+    player(uint8_t y, uint8_t x);
     ~player();
 
     int move(int y, int x);

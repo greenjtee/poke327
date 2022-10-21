@@ -7,6 +7,7 @@
 
 #include "utility.hpp"
 #include "trainer.hpp"
+#include "player.hpp"
 #include "world.hpp"
 #include "heap.h"
 #include "ncurses.h"
@@ -35,22 +36,16 @@ map::map(int n, int s, int e, int w, int d, int p, const uint8_t num_trainers, c
 
 	this->trainers = new trainer[num_trainers];
 
-	heap_init(&this->trainer_queue, trainer_cmp, 0);
+	this->time = 0;
+
+	heap_init(&this->player_queue, trainer_cmp, 0);
 
 	this->smooth_height();
 	this->map_terrain();
 
 	this->place_boulders();
 	this->place_trees();
-	pair_t pos = {5, 5};
-
-	this->print(pos, 10);
-	refresh();
-
 	this->build_paths();
-
-	this->print(pos, 10);
-	refresh();
 
 	if ((rand() % 100) < p || !d)
 	{
@@ -742,7 +737,7 @@ void map::place_trainers(const uint8_t num_trainers, const pair_t player_pos)
 	{
 		this->trainers[i].next_move = 0;
 		// this->trainers[i].n = heap_insert(&this->trainer_queue, &this->trainers[i]);
-		heap_insert(&this->trainer_queue, &this->trainers[i]);
+		heap_insert(&this->player_queue, &this->trainers[i]);
 	}
 }
 
@@ -852,26 +847,6 @@ int map::build_paths()
 
 	return 0;
 }
-
-typedef struct trainer_og
-{
-	pair_t pos;
-	trainer_type_t type;
-	int32_t nextMove;
-	heap_node_t *n;
-	int8_t direction;
-	int8_t heading;
-	uint8_t defeated;
-} trainer_t;
-
-typedef struct map_og
-{
-	terrain_type_t map[80][21];
-	uint8_t height[80][21];
-	uint8_t n, s, e, w;
-	trainer_t *trainers;
-	heap_t trainer_queue;
-} map_t;
 
 void map::dijkstra_path(pair_t from, pair_t to)
 {
@@ -1072,5 +1047,5 @@ void map::dijkstra_map(path_t cost_map[map_y][map_x], pair_t from, trainer_type_
 map::~map()
 {
 	delete[] trainers;
-	heap_delete(&this->trainer_queue);
+	heap_delete(&this->player_queue);
 }

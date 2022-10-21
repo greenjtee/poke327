@@ -2,8 +2,9 @@
 
 #include <cstdlib>
 #include <ncurses.h>
+#include <limits.h>
 
-world::world(uint8_t num_trainers)
+world::world(uint8_t num_trainers) : pc(5, 5)
 {
     this->display_menu = menu_map;
     this->trainer_start_index = 0;
@@ -256,6 +257,55 @@ bool world::process_input()
     }
 
     return true;
+}
+
+// simulates a time step of the world until the next pc turn
+void world::next()
+{
+    trainer *next_player = (trainer *)heap_remove_min(&this->cur_map()->player_queue);
+    int min_cost;
+    pair_t to;
+
+    while (next_player != (trainer *)&this->pc)
+    {
+        min_cost = next_player->get_next_move(*this, next_player, to);
+
+        if (to[dim_x] == this->pc.pos[dim_x] && to[dim_y] == this->pc.pos[dim_y] && !next_player->defeated)
+        { // tried to move to pc pos
+            this->display_menu = menu_battle;
+            this->battling = next_player;
+
+            next_player->next_move = this->cur_map()->time + min_cost;
+            this->cur_map()->time = next_player->next_move;
+            heap_insert(&this->cur_map()->player_queue, next_player);
+            break;
+        }
+
+        if (min_cost != INT_MAX)
+        { // otherwise if min cost is not infinite
+            next_player->next_move = this->cur_map()->time + min_cost;
+            this->cur_map()->time = next_player->next_move;
+
+            next_player->pos[dim_x] = to[dim_x];
+            next_player->pos[dim_y] = to[dim_y];
+            heap_insert(&this->cur_map()->player_queue, next_player);
+        }
+        next_player = (trainer *)heap_remove_min(&this->cur_map()->player_queue);
+    }
+
+    if (next_player == (trainer *)&this->pc)
+    { 
+        // pc may not be next up if the last trainer entered a battle
+        // pc_last_pos[dim_x] = world.pc.pos[dim_x];
+        // pc_last_pos[dim_y] = world.pc.pos[dim_y];
+
+        // print_map_nc(world.cur_map);
+        // refresh();
+
+        this->pc.next_move = this->cur_map()->time + 10;
+
+        heap_insert(&this->cur_map()->player_queue, &this->pc);
+    }
 }
 
 world::~world()

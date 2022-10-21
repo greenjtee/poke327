@@ -5,6 +5,7 @@
 
 #include "map.hpp"
 #include "player.hpp"
+#include "trainer.hpp"
 
 #include "utility.hpp"
 
@@ -30,6 +31,7 @@ class world
 private:
     menu_t display_menu;
     uint8_t trainer_start_index;
+    trainer* battling;
 
 public:
     static const uint16_t world_size = 401;
@@ -69,6 +71,8 @@ public:
     }
 
     bool process_input();
+
+    void next();
 
     ~world();
 };

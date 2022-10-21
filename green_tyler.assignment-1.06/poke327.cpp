@@ -87,7 +87,9 @@ int main(int argc, char *argv[])
     w.print_map();
     refresh();
 
-    while (w.process_input());
+    while (w.process_input()) {
+        w.next();
+    }
 
     end_ncurses();
 

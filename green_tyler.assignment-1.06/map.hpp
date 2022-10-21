@@ -52,6 +52,8 @@ private:
 
     int build_paths();
 
+    void move_trainers();
+
 public:
     void set_terrain(uint8_t y, uint8_t x, terrain_type_t t)
     {
@@ -88,7 +90,8 @@ public:
     uint8_t height[map_y][map_x];
     uint8_t n, s, e, w;
     trainer *trainers;
-    heap_t trainer_queue;
+    heap_t player_queue;
+    uint32_t time;
 
     map(int n, int s, int e, int w, int d, int p, const uint8_t num_trainers, const pair_t player_pos);
     void print(const pair_t player_pos, const uint8_t num_trainers) const;
