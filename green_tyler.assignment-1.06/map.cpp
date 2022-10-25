@@ -17,9 +17,9 @@ int32_t path_cmp(const void *key, const void *with)
 	return ((path_t *)key)->cost - ((path_t *)with)->cost;
 }
 
-int32_t trainer_cmp(const void *a, const void *b)
+int32_t player_cmp(const void *a, const void *b)
 {
-	return ((trainer *)a)->next_move - ((trainer *)b)->next_move;
+	return ((character *)a)->next_move - ((character *)b)->next_move;
 }
 
 int32_t edge_penalty(uint8_t x, uint8_t y)
@@ -38,7 +38,7 @@ map::map(int n, int s, int e, int w, int d, int p, const uint8_t num_trainers, c
 
 	this->time = 0;
 
-	heap_init(&this->player_queue, trainer_cmp, 0);
+	heap_init(&this->player_queue, player_cmp, 0);
 
 	this->smooth_height();
 	this->map_terrain();
@@ -616,7 +616,7 @@ void map::place_trainers(const uint8_t num_trainers, const pair_t player_pos)
 
 	if (num_trainers < 1)
 	{
-		printf("num_trainers should not be less than 1\n");
+		// printf("num_trainers should not be less than 1\n");
 		return;
 	}
 	else if (num_trainers == 1)

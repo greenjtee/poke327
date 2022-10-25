@@ -28,7 +28,7 @@ public:
 	~trainer();
 
 	int move(int y, int x);
-	uint32_t get_next_move(world &world, trainer *t, pair_t to);
+	uint32_t get_next_move(world &world, pair_t to);
 
 };
 

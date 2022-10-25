@@ -72,7 +72,9 @@ public:
 
     bool process_input();
 
-    void next();
+    bool next();
+
+    void generate_cost_maps();
 
     ~world();
 };

@@ -34,7 +34,8 @@ void initialize_ncurses()
     init_pair(ter_exit, COLOR_WHITE, COLOR_BLACK);
 }
 
-void end_ncurses() {
+void end_ncurses()
+{
     endwin();
 }
 
@@ -83,12 +84,18 @@ int main(int argc, char *argv[])
     initialize_ncurses();
 
     world w(num_trainers);
+    heap_insert(&w.cur_map()->player_queue, &w.pc);
 
     w.print_map();
     refresh();
 
-    while (w.process_input()) {
-        w.next();
+    while (true)
+    {
+        if (!w.next()) {
+            break;
+        }
+        w.print_map();
+        refresh();
     }
 
     end_ncurses();

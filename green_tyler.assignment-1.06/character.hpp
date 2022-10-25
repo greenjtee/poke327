@@ -8,7 +8,7 @@ public:
     pair_t pos, velocity;
     uint32_t next_move;
 
-    virtual int move(int x, int y) = 0;
+    // virtual int move(int x, int y) = 0;
 };
 
 #endif

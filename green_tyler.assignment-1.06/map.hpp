@@ -33,11 +33,11 @@ class map
 {
 public:
     static const int map_y = 21, map_x = 80;
+    void dijkstra_map(path_t cost_map[map_y][map_x], pair_t from, trainer_type_t trainer);
 
 private:
     static const int min_trees = 10, min_boulders = 10, tree_prob = 95, boulder_prob = 95;
     void dijkstra_path(pair_t from, pair_t to);
-    void dijkstra_map(path_t cost_map[map_y][map_x], pair_t from, trainer_type_t trainer);
 
     void smooth_height();
     void map_terrain();

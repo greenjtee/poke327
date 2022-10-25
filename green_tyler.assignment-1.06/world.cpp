@@ -12,6 +12,7 @@ world::world(uint8_t num_trainers) : pc(5, 5)
     this->cur_idx[dim_x] = this->cur_idx[dim_y] = this->world_size / 2;
 
     this->new_map();
+    this->generate_cost_maps();
 }
 
 int world::new_map()
@@ -104,56 +105,64 @@ bool world::process_input()
         case 'y':
             if (this->display_menu == menu_map)
             {
-                status = this->pc.move(-1, -1);
+                status = this->pc.move(-1, -1, *this);
+                this->generate_cost_maps();
             }
             break;
         case '8': // attempt to move pc up
         case 'k':
             if (this->display_menu == menu_map)
             {
-                status = this->pc.move(-1, 0);
+                status = this->pc.move(-1, 0, *this);
+                this->generate_cost_maps();
             }
             break;
         case '9': // attempt to move pc upper right
         case 'u':
             if (this->display_menu == menu_map)
             {
-                status = this->pc.move(-1, 1);
+                status = this->pc.move(-1, 1, *this);
+                this->generate_cost_maps();
             }
             break;
         case '6': // attempt to move pc right
         case 'l':
             if (this->display_menu == menu_map)
             {
-                status = this->pc.move(0, 1);
+                status = this->pc.move(0, 1, *this);
+                this->generate_cost_maps();
             }
             break;
         case '3': // attempt to move pc lower right
         case 'n':
             if (this->display_menu == menu_map)
             {
-                status = this->pc.move(1, 1);
+                status = this->pc.move(1, 1, *this);
+                this->generate_cost_maps();
             }
             break;
         case '2': // attempt to move pc down
         case 'j':
             if (this->display_menu == menu_map)
             {
-                status = this->pc.move(1, 0);
+                status = this->pc.move(1, 0, *this);
+                this->generate_cost_maps();
             }
             break;
         case '1': // attempt to move pc lower left
         case 'b':
             if (this->display_menu == menu_map)
             {
-                status = this->pc.move(1, -1);
+                status = this->pc.move(1, -1, *this);
+                this->generate_cost_maps();
             }
             break;
         case '4': // attempt to move pc left
         case 'h':
             if (this->display_menu == menu_map)
             {
-                status = this->pc.move(0, -1);
+                status = this->pc.move(0, -1, *this);
+                this->generate_cost_maps();
             }
             break;
         case '>': // attempt to enter pokecenter or pokemart
@@ -260,7 +269,7 @@ bool world::process_input()
 }
 
 // simulates a time step of the world until the next pc turn
-void world::next()
+bool world::next()
 {
     trainer *next_player = (trainer *)heap_remove_min(&this->cur_map()->player_queue);
     int min_cost;
@@ -268,7 +277,7 @@ void world::next()
 
     while (next_player != (trainer *)&this->pc)
     {
-        min_cost = next_player->get_next_move(*this, next_player, to);
+        min_cost = next_player->get_next_move(*this, to);
 
         if (to[dim_x] == this->pc.pos[dim_x] && to[dim_y] == this->pc.pos[dim_y] && !next_player->defeated)
         { // tried to move to pc pos
@@ -301,11 +310,20 @@ void world::next()
 
         // print_map_nc(world.cur_map);
         // refresh();
-
-        this->pc.next_move = this->cur_map()->time + 10;
+        if (!this->process_input()) {
+            return false;
+        }
 
         heap_insert(&this->cur_map()->player_queue, &this->pc);
     }
+
+    return true;
+}
+
+void world::generate_cost_maps() {
+    this->cur_map()->dijkstra_map(this->pc_cost_map, this->pc.pos, trainer_pc);
+    this->cur_map()->dijkstra_map(this->hiker_cost_map, this->pc.pos, trainer_pc);
+    this->cur_map()->dijkstra_map(this->rival_cost_map, this->pc.pos, trainer_pc);
 }
 
 world::~world()

@@ -70,25 +70,26 @@ uint32_t get_max_descent(world &world, path_t map[map::map_y][map::map_x], train
     return maxDescent;
 }
 
-uint32_t trainer::get_next_move(world &world, trainer *t, pair_t to) {
+uint32_t trainer::get_next_move(world &world, pair_t to) {
     uint32_t max = INT_MAX;
     int32_t newX, newY;
     uint32_t k, cost;
     uint8_t occupied;
 
-    switch (t->type) {
+    switch (this->type) {
         case trainer_hiker:
-            max = get_max_descent(world, world.rival_cost_map, t, to);
-            t->pos[dim_x] = to[dim_x];
-            t->pos[dim_y] = to[dim_y];
+            max = get_max_descent(world, world.rival_cost_map, this, to);
+            // t->pos[dim_x] = to[dim_x];
+            // t->pos[dim_y] = to[dim_y];
+            break;
         case trainer_rival:
-            max = get_max_descent(world, world.hiker_cost_map, t, to);
-            t->pos[dim_x] = to[dim_x];
-            t->pos[dim_y] = to[dim_y];
+            max = get_max_descent(world, world.hiker_cost_map, this, to);
+            // t->pos[dim_x] = to[dim_x];
+            // t->pos[dim_y] = to[dim_y];
             break;
         case trainer_pacer:
-            newX = t->pos[dim_x] + t->velocity[dim_x];
-            newY = t->pos[dim_y] + t->velocity[dim_y];
+            newX = this->pos[dim_x] + this->velocity[dim_x];
+            newY = this->pos[dim_y] + this->velocity[dim_y];
 
             if (newX < (map::map::map_x-1) && newX > 0 && newY < (map::map::map_y-1) && newY > 0) {
                 occupied = 0;
@@ -110,18 +111,18 @@ uint32_t trainer::get_next_move(world &world, trainer *t, pair_t to) {
             }
 
             // turn around if we made it this far
-            t->velocity[dim_y] *= -1;
-            t->velocity[dim_x] *= -1;
+            this->velocity[dim_y] *= -1;
+            this->velocity[dim_x] *= -1;
             
             // stay in the same place until next turn
-            to[dim_x] = t->pos[dim_x];
-            to[dim_y] = t->pos[dim_y];
+            to[dim_x] = this->pos[dim_x];
+            to[dim_y] = this->pos[dim_y];
 
             return 30; // turnaround cost
             break;
         case trainer_wanderer:
-            newX = t->pos[dim_x] + t->velocity[dim_x];
-            newY = t->pos[dim_y] + t->velocity[dim_y];
+            newX = this->pos[dim_x] + this->velocity[dim_x];
+            newY = this->pos[dim_y] + this->velocity[dim_y];
 
             if (newX < (map::map_x-1) && newX > 0 && newY < (map::map_y-1) && newY > 0) {
                 occupied = 0;
@@ -135,7 +136,7 @@ uint32_t trainer::get_next_move(world &world, trainer *t, pair_t to) {
 
                 cost = world.rival_cost_map[newY][newX].cost;
                 if (!occupied && cost != INT_MAX && (world.pc.pos[dim_y] != newY || world.pc.pos[dim_x] != newX)
-                     && world.cur_map()->get_terrain(newY, newX) == world.cur_map()->get_terrain(t->pos[dim_y], t->pos[dim_x])) { // cant move to pc location or out of current terrain region
+                     && world.cur_map()->get_terrain(newY, newX) == world.cur_map()->get_terrain(this->pos[dim_y], this->pos[dim_x])) { // cant move to pc location or out of current terrain region
                     to[dim_y] = newY;
                     to[dim_x] = newX;
                     return cost;
@@ -143,22 +144,22 @@ uint32_t trainer::get_next_move(world &world, trainer *t, pair_t to) {
             }
 
             // turn around if we made it this far
-            t->velocity[dim_y] = (rand() % 2) * 2 - 1;
-            t->velocity[dim_x] = (rand() % 2) * 2 - 1;
+            this->velocity[dim_y] = (rand() % 2) * 2 - 1;
+            this->velocity[dim_x] = (rand() % 2) * 2 - 1;
             
             // stay in the same place until next turn
-            to[dim_x] = t->pos[dim_x];
-            to[dim_y] = t->pos[dim_y];
+            to[dim_x] = this->pos[dim_x];
+            to[dim_y] = this->pos[dim_y];
 
             return 30; // turnaround cost
             break;
         case trainer_sentry: // sentries dont move
-            to[dim_y] = t->pos[dim_y];
-            to[dim_x] = t->pos[dim_x];
+            to[dim_y] = this->pos[dim_y];
+            to[dim_x] = this->pos[dim_x];
             break;
         case trainer_explorer:
-            newY = t->pos[dim_y] + t->velocity[dim_y];
-            newX = t->pos[dim_x] + t->velocity[dim_x];
+            newY = this->pos[dim_y] + this->velocity[dim_y];
+            newX = this->pos[dim_x] + this->velocity[dim_x];
 
             if (newX < (map::map_x-1) && newX > 0 && newY < (map::map_y-1) && newY > 0) {
                 occupied = 0;
@@ -179,12 +180,12 @@ uint32_t trainer::get_next_move(world &world, trainer *t, pair_t to) {
             }
 
             // turn around if we made it this far
-            t->velocity[dim_x] = (rand() % 2) * 2 - 1;
-            t->velocity[dim_y] = (rand() % 2) * 2 - 1;
+            this->velocity[dim_x] = (rand() % 2) * 2 - 1;
+            this->velocity[dim_y] = (rand() % 2) * 2 - 1;
             
             // stay in the same place until next turn
-            to[dim_x] = t->pos[dim_x];
-            to[dim_y] = t->pos[dim_y];
+            to[dim_x] = this->pos[dim_x];
+            to[dim_y] = this->pos[dim_y];
 
             return 30; // turnaround cost
  
