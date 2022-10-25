@@ -48,7 +48,7 @@ int player::move(int y, int x, world &world)
     this->pos[dim_y] = newY;
     this->pos[dim_x] = newX;
 
-    this->next_move = world.cur_map()->time + world.pc_cost_map[newY][newX].cost;
+    // this->next_move = world.cur_map()->time + world.pc_cost_map[newY][newX].cost;
 
     return 0;
 }

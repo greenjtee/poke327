@@ -10,6 +10,7 @@ world::world(uint8_t num_trainers) : pc(5, 5)
     this->trainer_start_index = 0;
     this->num_trainers = num_trainers;
     this->cur_idx[dim_x] = this->cur_idx[dim_y] = this->world_size / 2;
+    this->skip_queue = false;
 
     this->new_map();
     this->generate_cost_maps();
@@ -87,7 +88,6 @@ int world::new_map()
 bool world::process_input()
 {
     bool valid_input = false;
-    bool skip_queue = false;
     int status;
 
     wchar_t c;
@@ -183,13 +183,14 @@ bool world::process_input()
             break;
         case '<': // leave pokemart or pokecenter
             this->display_menu = menu_map;
-            skip_queue = true;
+            this->skip_queue = true;
             status = STATUS_OK;
             break;
         case '5': // rest for turn
         case ' ':
         case '.':
             status = STATUS_OK;
+            this->pc.next_move += 10;
             break;
         case 't': // display trainer list
             this->display_menu = menu_trainer_list;
@@ -222,7 +223,7 @@ bool world::process_input()
         case 'v': // faster than pressing escape so I added this one
         case 27:  // escape - return to character control from trainer list
             this->display_menu = menu_map;
-            skip_queue = true;
+            this->skip_queue = true;
             status = STATUS_OK;
             break;
         case 'Q': // quit game
@@ -310,10 +311,7 @@ bool world::next()
 
         // print_map_nc(world.cur_map);
         // refresh();
-        if (!this->process_input()) {
-            return false;
-        }
-
+        this->pc.next_move = this->cur_map()->time + this->pc_cost_map[this->pc.pos[dim_y]][this->pc.pos[dim_x]].cost;
         heap_insert(&this->cur_map()->player_queue, &this->pc);
     }
 
