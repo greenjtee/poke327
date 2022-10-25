@@ -81,7 +81,8 @@ int world::new_map()
          abs(this->cur_idx[dim_y] - (world_size / 2)));
     p = d > 200 ? 5 : (50 - ((45 * d) / 200));
 
-    this->set_map(new map(n, s, e, w, d, p, this->num_trainers, this->pc.pos), this->cur_idx[dim_y], this->cur_idx[dim_y]);
+    this->set_map(new map(n, s, e, w, d, p, this->num_trainers, this->pc.pos), this->cur_idx[dim_y], this->cur_idx[dim_x]);
+    heap_insert(&this->cur_map()->player_queue, &this->pc);
     return 0;
 }
 
@@ -190,7 +191,7 @@ bool world::process_input()
         case ' ':
         case '.':
             status = STATUS_OK;
-            this->pc.next_move += 10;
+            // this->pc.next_move += 10;
             break;
         case 't': // display trainer list
             this->display_menu = menu_trainer_list;
@@ -224,6 +225,7 @@ bool world::process_input()
         case 27:  // escape - return to character control from trainer list
             this->display_menu = menu_map;
             this->skip_queue = true;
+            this->battling = nullptr;
             status = STATUS_OK;
             break;
         case 'Q': // quit game
@@ -304,7 +306,7 @@ bool world::next()
     }
 
     if (next_player == (trainer *)&this->pc)
-    { 
+    {
         // pc may not be next up if the last trainer entered a battle
         // pc_last_pos[dim_x] = world.pc.pos[dim_x];
         // pc_last_pos[dim_y] = world.pc.pos[dim_y];
@@ -318,7 +320,8 @@ bool world::next()
     return true;
 }
 
-void world::generate_cost_maps() {
+void world::generate_cost_maps()
+{
     this->cur_map()->dijkstra_map(this->pc_cost_map, this->pc.pos, trainer_pc);
     this->cur_map()->dijkstra_map(this->hiker_cost_map, this->pc.pos, trainer_pc);
     this->cur_map()->dijkstra_map(this->rival_cost_map, this->pc.pos, trainer_pc);

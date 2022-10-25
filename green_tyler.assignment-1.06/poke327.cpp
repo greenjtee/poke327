@@ -169,14 +169,14 @@ int main(int argc, char *argv[])
     initialize_ncurses();
 
     world w(num_trainers);
-    heap_insert(&w.cur_map()->player_queue, &w.pc);
 
     w.print_map();
     refresh();
 
     while (true)
     {
-        if (!w.process_input()) {
+        if (!w.process_input())
+        {
             break;
         }
 

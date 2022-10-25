@@ -85,7 +85,6 @@ public:
         return this->height[p[dim_y]][p[dim_x]];
     }
 
-public:
     terrain_type_t terrain[map_y][map_x];
     uint8_t height[map_y][map_x];
     uint8_t n, s, e, w;

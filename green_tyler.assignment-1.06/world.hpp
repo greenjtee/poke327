@@ -17,12 +17,13 @@
 #define STATUS_MOVE_ERROR 5
 #define STATUS_BATTLE 6
 
-typedef enum menu {
-	menu_map,
-	menu_trainer_list,
-	menu_pokemart,
-	menu_pokecenter,
-	menu_battle
+typedef enum menu
+{
+    menu_map,
+    menu_trainer_list,
+    menu_pokemart,
+    menu_pokecenter,
+    menu_battle
 } menu_t;
 
 class world
@@ -42,7 +43,7 @@ public:
     menu_t display_menu;
     uint8_t trainer_start_index;
     bool skip_queue;
-    trainer* battling;
+    trainer *battling;
 
     player pc;
 
