@@ -91,6 +91,8 @@ bool world::process_input()
     bool valid_input = false;
     int status;
 
+    int flyX, flyY;
+
     wchar_t c;
 
     while (!valid_input)
@@ -231,6 +233,32 @@ bool world::process_input()
         case 'Q': // quit game
             return false;
             break;
+        case 'f': // fly
+            mvaddstr(WINDOW_STATUS_TOP, 0, "Enter coordinates: ");
+            refresh();
+            echo();
+            scanw("%d %d", &flyX, &flyY);
+            noecho();
+            flyX += 200;
+            flyY += 200;
+            if (flyX < 0 || flyX >= world_size || flyY < 0 || flyY >= world_size)
+            {
+                mvaddstr(WINDOW_STATUS_TOP, 0, "Coordinates out of bounds");
+                // refresh();
+            }
+            else
+            {
+                this->cur_idx[dim_x] = flyX;
+                this->cur_idx[dim_y] = flyY;
+
+                this->new_map();
+                this->pc.next_move = this->cur_map()->time;
+
+                // find a place to put the pc
+                this->place_pc();
+            }
+            break;
+
         default:
             status = STATUS_DEFAULT;
             break;
@@ -326,6 +354,24 @@ void world::generate_cost_maps()
     this->cur_map()->dijkstra_map(this->pc_cost_map, this->pc.pos, trainer_pc);
     this->cur_map()->dijkstra_map(this->hiker_cost_map, this->pc.pos, trainer_pc);
     this->cur_map()->dijkstra_map(this->rival_cost_map, this->pc.pos, trainer_pc);
+}
+
+void world::place_pc()
+{
+    uint8_t i, j;
+    for (i = 0; i < map::map_y; i++)
+    {
+        for (j = 0; j < map::map_x; j++)
+        {
+            if (this->cur_map()->get_terrain(i, j) == ter_clearing) {
+                this->pc.pos[dim_y] = i;
+                this->pc.pos[dim_x] = j;
+                return;
+            }
+        }
+    }
+
+    // no good places to put pc
 }
 
 world::~world()

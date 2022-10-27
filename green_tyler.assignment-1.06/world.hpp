@@ -77,6 +77,8 @@ public:
 
     void generate_cost_maps();
 
+    void place_pc();
+
     ~world();
 };
 

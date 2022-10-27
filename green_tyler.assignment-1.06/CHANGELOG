@@ -73,5 +73,7 @@
   - added class for trainer
   - added class for world
   - refactored old code for cpp
+  - added fly command
+  - added player movement between maps
 ### Updated
  - 2022-10-20

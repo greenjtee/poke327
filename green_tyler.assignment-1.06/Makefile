@@ -1,9 +1,9 @@
 all: poke327
 
-prod: poke327.cpp heap.cpp heap.h map.cpp map.hpp world.cpp world.hpp trainer.cpp trainer.hpp utility.h
+prod: poke327.cpp heap.c heap.h map.cpp map.hpp world.cpp world.hpp trainer.cpp trainer.hpp
 	g++ -Wall -Werror -c trainer.cpp -o trainer.o
 	g++ -Wall -Werror -c map.cpp -o map.o
-	g++ -Wall -Werror -c heap.c -o heap.o
+	gcc -Wall -Werror -c heap.c -o heap.o
 	g++ -Wall -Werror -c world.cpp -o world.o
 	g++ -Wall -Werror -c poke327.cpp -o poke327.o
 	g++ -Wall -Werror -c player.cpp -o player.o -c
