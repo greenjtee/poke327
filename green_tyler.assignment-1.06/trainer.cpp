@@ -134,7 +134,7 @@ uint32_t trainer::get_next_move(world &world, pair_t to)
             }
 
             cost = world.rival_cost_map[newY][newX].cost;
-            if (!occupied && cost != INT_MAX && (world.pc.pos[dim_y] != newY || world.pc.pos[dim_x] != newX))
+            if (!occupied && cost != INT_MAX)
             {                     // cant move to pc location
                 to[dim_y] = newY; // t->pos[dim_y];
                 to[dim_x] = newX;
@@ -170,7 +170,7 @@ uint32_t trainer::get_next_move(world &world, pair_t to)
             }
 
             cost = world.rival_cost_map[newY][newX].cost;
-            if (!occupied && cost != INT_MAX && (world.pc.pos[dim_y] != newY || world.pc.pos[dim_x] != newX) && world.cur_map()->get_terrain(newY, newX) == world.cur_map()->get_terrain(this->pos[dim_y], this->pos[dim_x]))
+            if (!occupied && cost != INT_MAX && world.cur_map()->get_terrain(newY, newX) == world.cur_map()->get_terrain(this->pos[dim_y], this->pos[dim_x]))
             { // cant move to pc location or out of current terrain region
                 to[dim_y] = newY;
                 to[dim_x] = newX;
@@ -210,7 +210,7 @@ uint32_t trainer::get_next_move(world &world, pair_t to)
             }
 
             cost = world.rival_cost_map[newY][newX].cost;
-            if (!occupied && cost != INT_MAX && (world.pc.pos[dim_y] != newY || world.pc.pos[dim_x] != newX))
+            if (!occupied && cost != INT_MAX)
             { // cant move to pc location
                 to[dim_y] = newY;
                 to[dim_x] = newX;

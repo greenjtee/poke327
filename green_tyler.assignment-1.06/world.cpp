@@ -255,6 +255,7 @@ bool world::process_input()
             else if (status == STATUS_BATTLE)
             {
                 this->display_menu = menu_battle;
+                valid_input = 1;
             }
 
             refresh();

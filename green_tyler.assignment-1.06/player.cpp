@@ -85,6 +85,7 @@ int player::move(int y, int x, world &world)
     {
         if (newY == world.cur_map()->trainers[i].pos[dim_y] && newX == world.cur_map()->trainers[i].pos[dim_x] && !world.cur_map()->trainers[i].defeated)
         { // pc tried to move to trainer location, battle!
+            world.battling = &world.cur_map()->trainers[i];
             return STATUS_BATTLE;
         }
     }
