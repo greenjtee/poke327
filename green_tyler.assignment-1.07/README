@@ -1,4 +1,4 @@
 # poke327
 
-## [1.06] - Moving to neighboring maps and porting to C++
-Now our poke327 will be written in C++ and allow the player to move from one map to the next!
+## [1.07] - CSV Parsing
+Now we are able to parse csv files containing pokemon information like names, moves, stats, etc.
