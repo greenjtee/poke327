@@ -129,134 +129,53 @@ void end_ncurses()
 
 int main(int argc, char *argv[])
 {
-    pokedex p;
     int argi;
+
+    std::vector<std::string> paths;
 
     std::string home_path = getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv");
     std::string share_path = "/share/cs327" + std::string("/pokedex/pokedex/data/csv");
+
+    paths.push_back(home_path);
+    paths.push_back(share_path);
+    pokedex p(paths);
 
     for (argi = 0; argi < argc; argi++)
     {
         if (!strcmp(argv[argi], "pokemon"))
         {
-            std::string fpath = home_path.append("/pokemon.csv");
-            if (!p.parse_pokemon(fpath))
-            {
-                fpath = share_path.append("/pokemon.csv");
-                if (!p.parse_pokemon(fpath))
-                {
-                    printf("error parsing file\n");
-                    return 0;
-                }
-            }
-
             p.print_pokemon();
         }
         else if (!strcmp(argv[argi], "moves"))
         {
-            std::string fpath = home_path.append("/moves.csv");
-            if (!p.parse_moves(fpath))
-            {
-                fpath = share_path.append("/moves.csv");
-                if (!p.parse_moves(fpath))
-                {
-                    printf("error parsing file\n");
-                }
-            }
-
             p.print_moves();
         }
         else if (!strcmp(argv[argi], "pokemon_moves"))
         {
-            std::string fpath = home_path.append("/pokemon_moves.csv");
-            if (!p.parse_pokemon_moves(fpath))
-            {
-                fpath = share_path.append("/pokemon_moves.csv");
-                if (!p.parse_pokemon_moves(fpath))
-                {
-                    printf("error parsing file\n");
-                }
-            }
-
             p.print_pokemon_moves();
         }
         else if (!strcmp(argv[argi], "pokemon_species"))
         {
-            std::string fpath = home_path.append("/pokemon_species.csv");
-            if (!p.parse_pokemon_species(fpath))
-            {
-                fpath = share_path.append("/pokemon_species.csv");
-                if (!p.parse_pokemon_species(fpath))
-                {
-                    printf("error parsing file\n");
-                }
-            }
-
             p.print_pokemon_species();
         }
         else if (!strcmp(argv[argi], "experience"))
         {
-            std::string fpath = home_path.append("/experience.csv");
-            if (!p.parse_experience(fpath))
-            {
-                fpath = share_path.append("/experience.csv");
-                if (!p.parse_experience(fpath))
-                {
-                    printf("error parsing file\n");
-                }
-            }
             p.print_experience();
         }
         else if (!strcmp(argv[argi], "type_names"))
         {
-            std::string fpath = home_path.append("/type_names.csv");
-            if (!p.parse_type_names(fpath))
-            {
-                fpath = share_path.append("/type_names.csv");
-                if (!p.parse_type_names(fpath))
-                {
-                    printf("error parsing file\n");
-                }
-            }
             p.print_type_names();
         }
         else if (!strcmp(argv[argi], "pokemon_stats"))
         {
-            std::string fpath = home_path.append("/pokemon_stats.csv");
-            if (!p.parse_pokemon_stats(fpath))
-            {
-                fpath = share_path.append("/pokemon_stats.csv");
-                if (!p.parse_pokemon_stats(fpath))
-                {
-                    printf("error parsing file\n");
-                }
-            }
             p.print_pokemon_stats();
         }
         else if (!strcmp(argv[argi], "stats"))
         {
-            std::string fpath = home_path.append("/stats.csv");
-            if (!p.parse_stats(fpath))
-            {
-                fpath = share_path.append("/stats.csv");
-                if (!p.parse_stats(fpath))
-                {
-                    printf("error parsing file\n");
-                }
-            }
             p.print_stats();
         }
         else if (!strcmp(argv[argi], "pokemon_types"))
         {
-            std::string fpath = home_path.append("/pokemon_types.csv");
-            if (!p.parse_pokemon_types(fpath))
-            {
-                fpath = share_path.append("/pokemon_types.csv");
-                if (!p.parse_pokemon_types(fpath))
-                {
-                    printf("error parsing file\n");
-                }
-            }
             p.print_pokemon_types();
         }
     }

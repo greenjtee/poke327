@@ -6,28 +6,45 @@
 #include <string>
 #include <climits>
 
-void convert_and_store(uint32_t &a, std::string &s)
+void convert_and_store(int32_t &a, std::string &s)
 {
-    if (s.size())
+    if (s.size()) {
         a = stoi(s);
+    }
     else
+    {
         a = INT_MAX;
+    }
 }
 
-void better_print(uint32_t a)
+void better_print(int32_t a)
 {
     if (a != INT_MAX)
     {
-        printf("%5d\t", a);
-    }
-    else
-    {
-        printf("\t");
+        printf("%d", a);
     }
 }
 
-pokedex::pokedex()
+pokedex::pokedex(std::vector<std::string> &paths)
 {
+    for (auto path : paths) {
+        parse_pokemon(std::string(path).append("/pokemon.csv"));
+        if (this->pokemon.size() == 0) {
+            continue;
+        }
+        parse_moves(std::string(path).append("/moves.csv"));
+        parse_pokemon_moves(std::string(path).append("/pokemon_moves.csv"));
+        parse_pokemon_species(std::string(path).append("/pokemon_species.csv"));
+        parse_experience(std::string(path).append("/experience.csv"));
+        parse_type_names(std::string(path).append("/type_names.csv"));
+        parse_pokemon_stats(std::string(path).append("/pokemon_stats.csv"));
+        parse_stats(std::string(path).append("/stats.csv"));
+        parse_pokemon_types(std::string(path).append("/pokemon_types.csv"));
+    }
+
+    if (this->pokemon.size() == 0) {
+        std::cout << "No valid paths given" << std::endl;
+    }
 }
 
 // id,identifier,species_id,height,weight,base_experience,order,is_default
@@ -89,12 +106,19 @@ void pokedex::print_pokemon()
     for (pokemon_t *p : pokemon)
     {
         better_print(p->id);
-        printf("%-30s", p->identifier.c_str());
+        printf(",");
+        printf("%s", p->identifier.c_str());
+        printf(",");
         better_print(p->species_id);
+        printf(",");
         better_print(p->height);
+        printf(",");
         better_print(p->weight);
+        printf(",");
         better_print(p->base_experience);
+        printf(",");
         better_print(p->order);
+        printf(",");
         better_print(p->is_default);
         printf("\n");
     }
@@ -178,18 +202,31 @@ void pokedex::print_moves()
     for (move_t *m : moves)
     {
         better_print(m->id);
-        printf("%-40s", m->identifier.c_str());
+        printf(",");
+        printf("%s", m->identifier.c_str());
+        printf(",");
         better_print(m->generation_id);
+        printf(",");
         better_print(m->type_id);
+        printf(",");
         better_print(m->power);
+        printf(",");
         better_print(m->pp);
+        printf(",");
         better_print(m->accuracy);
+        printf(",");
         better_print(m->target_id);
+        printf(",");
         better_print(m->damage_class_id);
+        printf(",");
         better_print(m->effect_id);
+        printf(",");
         better_print(m->effect_chance);
+        printf(",");
         better_print(m->contest_type_id);
+        printf(",");
         better_print(m->contest_effect_id);
+        printf(",");
         better_print(m->super_contest_effect_id);
         printf("\n");
     }
@@ -248,10 +285,15 @@ void pokedex::print_pokemon_moves()
     for (pokemon_move_t *m : pokemon_moves)
     {
         better_print(m->pokemon_id);
+        printf(",");
         better_print(m->version_group_id);
+        printf(",");
         better_print(m->move_id);
+        printf(",");
         better_print(m->pokemon_move_method_id);
+        printf(",");
         better_print(m->level);
+        printf(",");
         better_print(m->order);
         printf("\n");
     }
@@ -335,24 +377,43 @@ void pokedex::print_pokemon_species()
     for (pokemon_species_t *s : pokemon_species)
     {
         better_print(s->id);
-        printf("%-40s", s->identifier.c_str());
+        printf(",");
+        printf("%s", s->identifier.c_str());
+        printf(",");
         better_print(s->generation_id);
+        printf(",");
         better_print(s->evolves_from_species_id);
+        printf(",");
         better_print(s->evolution_chain_id);
+        printf(",");
         better_print(s->color_id);
+        printf(",");
         better_print(s->shape_id);
+        printf(",");
         better_print(s->habitat_id);
+        printf(",");
         better_print(s->gender_rate);
+        printf(",");
         better_print(s->capture_rate);
+        printf(",");
         better_print(s->base_happiness);
+        printf(",");
         better_print(s->is_baby);
+        printf(",");
         better_print(s->hatch_counter);
+        printf(",");
         better_print(s->has_gender_differences);
+        printf(",");
         better_print(s->growth_rate_id);
+        printf(",");
         better_print(s->forms_switchable);
+        printf(",");
         better_print(s->is_legendary);
+        printf(",");
         better_print(s->is_mythical);
+        printf(",");
         better_print(s->order);
+        printf(",");
         better_print(s->conquest_order);
         printf("\n");
     }
@@ -397,7 +458,9 @@ void pokedex::print_experience()
     for (experience_t *e : experience)
     {
         better_print(e->growth_rate_id);
+        printf(",");
         better_print(e->level);
+        printf(",");
         better_print(e->experience);
         printf("\n");
     }
@@ -442,8 +505,10 @@ void pokedex::print_type_names()
     for (type_name_t *t : type_names)
     {
         better_print(t->type_id);
+        printf(",");
         better_print(t->local_language_id);
-        printf("%-40s", t->name.c_str());
+        printf(",");
+        printf("%s", t->name.c_str());
         printf("\n");
     }
 }
@@ -489,8 +554,11 @@ void pokedex::print_pokemon_stats()
     for (pokemon_stat_t *s : pokemon_stats)
     {
         better_print(s->pokemon_id);
+        printf(",");
         better_print(s->stat_id);
+        printf(",");
         better_print(s->base_stat);
+        printf(",");
         better_print(s->effort);
         printf("\n");
     }
@@ -539,9 +607,12 @@ void pokedex::print_stats()
     for (stat_t *s : stats)
     {
         better_print(s->id);
+        printf(",");
         better_print(s->damage_class_id);
-        printf("%-40s", s->identifier.c_str());
+        printf(",");
+        printf("%s,", s->identifier.c_str());
         better_print(s->is_battle_only);
+        printf(",");
         better_print(s->game_index);
         printf("\n");
     }
@@ -586,7 +657,9 @@ void pokedex::print_pokemon_types()
     for (pokemon_type_t *t : pokemon_types)
     {
         better_print(t->pokemon_id);
+        printf(",");
         better_print(t->type_id);
+        printf(",");
         better_print(t->slot);
         printf("\n");
     }
