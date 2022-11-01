@@ -167,6 +167,7 @@ bool pokedex::parse_moves(std::string &filename)
         std::getline(ss, type_id, ',');
         std::getline(ss, power, ',');
         std::getline(ss, pp, ',');
+        std::getline(ss, priority, ',');
         std::getline(ss, accuracy, ',');
         std::getline(ss, target_id, ',');
         std::getline(ss, damage_class_id, ',');
@@ -182,6 +183,7 @@ bool pokedex::parse_moves(std::string &filename)
         convert_and_store(m->type_id, type_id);
         convert_and_store(m->power, power);
         convert_and_store(m->pp, pp);
+        convert_and_store(m->priority, priority);
         convert_and_store(m->accuracy, accuracy);
         convert_and_store(m->target_id, target_id);
         convert_and_store(m->damage_class_id, damage_class_id);
@@ -212,6 +214,8 @@ void pokedex::print_moves()
         better_print(m->power);
         printf(",");
         better_print(m->pp);
+        printf(",");
+        better_print(m->priority);
         printf(",");
         better_print(m->accuracy);
         printf(",");
