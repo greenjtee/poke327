@@ -614,12 +614,22 @@ pokedex::~pokedex()
         delete s;
     }
 
+    for (experience_t *e : experience)
+    {
+        delete e;
+    }
+
     for (type_name_t *t : type_names)
     {
         delete t;
     }
 
     for (pokemon_stat_t *s : pokemon_stats)
+    {
+        delete s;
+    }
+
+    for (stat_t *s : stats)
     {
         delete s;
     }
