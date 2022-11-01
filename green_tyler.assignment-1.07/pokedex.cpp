@@ -14,11 +14,15 @@ void convert_and_store(uint32_t &a, std::string &s)
         a = INT_MAX;
 }
 
-void better_print(uint32_t a) {
-    if (a != INT_MAX) {
-        printf("%5d ", a);
-    } else {
-        printf("      ");
+void better_print(uint32_t a)
+{
+    if (a != INT_MAX)
+    {
+        printf("%5d\t", a);
+    }
+    else
+    {
+        printf("\t");
     }
 }
 
@@ -191,6 +195,7 @@ void pokedex::print_moves()
     }
 }
 
+// pokemon_id,version_group_id,move_id,pokemon_move_method_id,level,order
 bool pokedex::parse_pokemon_moves(std::string &filename)
 {
     std::ifstream file_stream(filename);
@@ -225,7 +230,6 @@ bool pokedex::parse_pokemon_moves(std::string &filename)
         std::getline(ss, level, ',');
         std::getline(ss, order, ',');
 
-
         convert_and_store(m->pokemon_id, pokemon_id);
         convert_and_store(m->version_group_id, version_group_id);
         convert_and_store(m->move_id, move_id);
@@ -253,112 +257,339 @@ void pokedex::print_pokemon_moves()
     }
 }
 
+// id,identifier,generation_id,evolves_from_species_id,evolution_chain_id,color_id,shape_id,habitat_id,gender_rate,capture_rate,base_happiness,
+// is_baby,hatch_counter,has_gender_differences,growth_rate_id,forms_switchable,is_legendary,is_mythical,order,conquest_order
 bool pokedex::parse_pokemon_species(std::string &filename)
 {
     std::ifstream file_stream(filename);
     std::string line;
+    pokemon_species_t *s;
 
     if (!file_stream.is_open())
     {
         return false;
     }
 
+    // skip header
+    std::getline(file_stream, line);
+
     while (getline(file_stream, line))
     {
-        std::cout << line << std::endl;
+        s = new pokemon_species_t;
+        std::stringstream ss(line);
+        std::string id, identifier, generation_id, evolves_from_species_id, evolution_chain_id,
+            color_id, shape_id, habitat_id, gender_rate, capture_rate, base_happiness,
+            is_baby, hatch_counter, has_gender_differences, growth_rate_id, forms_switchable,
+            is_legendary, is_mythical, order, conquest_order;
+
+        std::getline(ss, id, ',');
+        std::getline(ss, identifier, ',');
+        std::getline(ss, generation_id, ',');
+        std::getline(ss, evolves_from_species_id, ',');
+        std::getline(ss, evolution_chain_id, ',');
+        std::getline(ss, color_id, ',');
+        std::getline(ss, shape_id, ',');
+        std::getline(ss, habitat_id, ',');
+        std::getline(ss, gender_rate, ',');
+        std::getline(ss, capture_rate, ',');
+        std::getline(ss, base_happiness, ',');
+        std::getline(ss, is_baby, ',');
+        std::getline(ss, hatch_counter, ',');
+        std::getline(ss, has_gender_differences, ',');
+        std::getline(ss, growth_rate_id, ',');
+        std::getline(ss, forms_switchable, ',');
+        std::getline(ss, is_legendary, ',');
+        std::getline(ss, is_mythical, ',');
+        std::getline(ss, order, ',');
+        std::getline(ss, conquest_order, ',');
+
+        convert_and_store(s->id, id);
+        s->identifier = identifier;
+        convert_and_store(s->generation_id, generation_id);
+        convert_and_store(s->evolves_from_species_id, evolves_from_species_id);
+        convert_and_store(s->evolution_chain_id, evolution_chain_id);
+        convert_and_store(s->color_id, color_id);
+        convert_and_store(s->shape_id, shape_id);
+        convert_and_store(s->habitat_id, habitat_id);
+        convert_and_store(s->gender_rate, gender_rate);
+        convert_and_store(s->capture_rate, capture_rate);
+        convert_and_store(s->base_happiness, base_happiness);
+        convert_and_store(s->is_baby, is_baby);
+        convert_and_store(s->hatch_counter, hatch_counter);
+        convert_and_store(s->has_gender_differences, has_gender_differences);
+        convert_and_store(s->growth_rate_id, growth_rate_id);
+        convert_and_store(s->forms_switchable, forms_switchable);
+        convert_and_store(s->is_legendary, is_legendary);
+        convert_and_store(s->is_mythical, is_mythical);
+        convert_and_store(s->order, order);
+        convert_and_store(s->conquest_order, conquest_order);
+
+        this->pokemon_species.push_back(s);
     }
 
     return true;
+}
+
+void pokedex::print_pokemon_species()
+{
+    for (pokemon_species_t *s : pokemon_species)
+    {
+        better_print(s->id);
+        printf("%-40s", s->identifier.c_str());
+        better_print(s->generation_id);
+        better_print(s->evolves_from_species_id);
+        better_print(s->evolution_chain_id);
+        better_print(s->color_id);
+        better_print(s->shape_id);
+        better_print(s->habitat_id);
+        better_print(s->gender_rate);
+        better_print(s->capture_rate);
+        better_print(s->base_happiness);
+        better_print(s->is_baby);
+        better_print(s->hatch_counter);
+        better_print(s->has_gender_differences);
+        better_print(s->growth_rate_id);
+        better_print(s->forms_switchable);
+        better_print(s->is_legendary);
+        better_print(s->is_mythical);
+        better_print(s->order);
+        better_print(s->conquest_order);
+        printf("\n");
+    }
 }
 
 bool pokedex::parse_experience(std::string &filename)
 {
     std::ifstream file_stream(filename);
     std::string line;
+    experience_t *e;
 
     if (!file_stream.is_open())
     {
         return false;
     }
 
+    // skip header
+    std::getline(file_stream, line);
+
     while (getline(file_stream, line))
     {
-        std::cout << line << std::endl;
+        e = new experience_t;
+        std::stringstream ss(line);
+        std::string growth_rate_id, level, experience;
+
+        std::getline(ss, growth_rate_id, ',');
+        std::getline(ss, level, ',');
+        std::getline(ss, experience, ',');
+
+        convert_and_store(e->growth_rate_id, growth_rate_id);
+        convert_and_store(e->level, level);
+        convert_and_store(e->experience, experience);
+
+        this->experience.push_back(e);
     }
 
     return true;
+}
+
+void pokedex::print_experience()
+{
+    for (experience_t *e : experience)
+    {
+        better_print(e->growth_rate_id);
+        better_print(e->level);
+        better_print(e->experience);
+        printf("\n");
+    }
 }
 
 bool pokedex::parse_type_names(std::string &filename)
 {
     std::ifstream file_stream(filename);
     std::string line;
+    type_name_t *t;
 
     if (!file_stream.is_open())
     {
         return false;
     }
 
+    // skip header
+    std::getline(file_stream, line);
+
     while (getline(file_stream, line))
     {
-        std::cout << line << std::endl;
+        t = new type_name_t;
+        std::stringstream ss(line);
+        std::string type_id, local_language_id, name;
+
+        std::getline(ss, type_id, ',');
+        std::getline(ss, local_language_id, ',');
+        std::getline(ss, name, ',');
+
+        convert_and_store(t->type_id, type_id);
+        convert_and_store(t->local_language_id, local_language_id);
+        t->name = name;
+
+        this->type_names.push_back(t);
     }
 
     return true;
+}
+
+void pokedex::print_type_names()
+{
+    for (type_name_t *t : type_names)
+    {
+        better_print(t->type_id);
+        better_print(t->local_language_id);
+        printf("%-40s", t->name.c_str());
+        printf("\n");
+    }
 }
 
 bool pokedex::parse_pokemon_stats(std::string &filename)
 {
     std::ifstream file_stream(filename);
     std::string line;
+    pokemon_stat_t *s;
 
     if (!file_stream.is_open())
     {
         return false;
     }
 
+    // skip header
+    std::getline(file_stream, line);
+
     while (getline(file_stream, line))
     {
-        std::cout << line << std::endl;
+        s = new pokemon_stat_t;
+        std::stringstream ss(line);
+        std::string pokemon_id, stat_id, base_stat, effort;
+
+        std::getline(ss, pokemon_id, ',');
+        std::getline(ss, stat_id, ',');
+        std::getline(ss, base_stat, ',');
+        std::getline(ss, effort, ',');
+
+        convert_and_store(s->pokemon_id, pokemon_id);
+        convert_and_store(s->stat_id, stat_id);
+        convert_and_store(s->base_stat, base_stat);
+        convert_and_store(s->effort, effort);
+
+        this->pokemon_stats.push_back(s);
     }
 
     return true;
+}
+
+void pokedex::print_pokemon_stats()
+{
+    for (pokemon_stat_t *s : pokemon_stats)
+    {
+        better_print(s->pokemon_id);
+        better_print(s->stat_id);
+        better_print(s->base_stat);
+        better_print(s->effort);
+        printf("\n");
+    }
 }
 
 bool pokedex::parse_stats(std::string &filename)
 {
     std::ifstream file_stream(filename);
     std::string line;
+    stat_t *s;
 
     if (!file_stream.is_open())
     {
         return false;
     }
 
+    // skip header
+    std::getline(file_stream, line);
+
     while (getline(file_stream, line))
     {
-        std::cout << line << std::endl;
+        s = new stat_t;
+        std::stringstream ss(line);
+        std::string id, damage_class_id, identifier, is_battle_only, game_index;
+
+        std::getline(ss, id, ',');
+        std::getline(ss, damage_class_id, ',');
+        std::getline(ss, identifier, ',');
+        std::getline(ss, is_battle_only, ',');
+        std::getline(ss, game_index, ',');
+
+        convert_and_store(s->id, id);
+        convert_and_store(s->damage_class_id, damage_class_id);
+        s->identifier = identifier;
+        convert_and_store(s->is_battle_only, is_battle_only);
+        convert_and_store(s->game_index, game_index);
+
+        this->stats.push_back(s);
     }
 
     return true;
+}
+
+void pokedex::print_stats()
+{
+    for (stat_t *s : stats)
+    {
+        better_print(s->id);
+        better_print(s->damage_class_id);
+        printf("%-40s", s->identifier.c_str());
+        better_print(s->is_battle_only);
+        better_print(s->game_index);
+        printf("\n");
+    }
 }
 
 bool pokedex::parse_pokemon_types(std::string &filename)
 {
     std::ifstream file_stream(filename);
     std::string line;
+    pokemon_type_t *t;
 
     if (!file_stream.is_open())
     {
         return false;
     }
 
+    // skip header
+    std::getline(file_stream, line);
+
     while (getline(file_stream, line))
     {
-        std::cout << line << std::endl;
+        t = new pokemon_type_t;
+        std::stringstream ss(line);
+        std::string pokemon_id, type_id, slot;
+
+        std::getline(ss, pokemon_id, ',');
+        std::getline(ss, type_id, ',');
+        std::getline(ss, slot, ',');
+
+        convert_and_store(t->pokemon_id, pokemon_id);
+        convert_and_store(t->type_id, type_id);
+        convert_and_store(t->slot, slot);
+
+        this->pokemon_types.push_back(t);
     }
 
     return true;
+}
+
+void pokedex::print_pokemon_types()
+{
+    for (pokemon_type_t *t : pokemon_types)
+    {
+        better_print(t->pokemon_id);
+        better_print(t->type_id);
+        better_print(t->slot);
+        printf("\n");
+    }
 }
 
 pokedex::~pokedex()
@@ -371,5 +602,30 @@ pokedex::~pokedex()
     for (move_t *m : moves)
     {
         delete m;
+    }
+
+    for (pokemon_move_t *m : pokemon_moves)
+    {
+        delete m;
+    }
+
+    for (pokemon_species_t *s : pokemon_species)
+    {
+        delete s;
+    }
+
+    for (type_name_t *t : type_names)
+    {
+        delete t;
+    }
+
+    for (pokemon_stat_t *s : pokemon_stats)
+    {
+        delete s;
+    }
+
+    for (pokemon_type_t *t : pokemon_types)
+    {
+        delete t;
     }
 }

@@ -191,6 +191,8 @@ int main(int argc, char *argv[])
                     printf("error parsing file\n");
                 }
             }
+
+            p.print_pokemon_species();
         }
         else if (!strcmp(argv[argi], "experience"))
         {
@@ -203,6 +205,7 @@ int main(int argc, char *argv[])
                     printf("error parsing file\n");
                 }
             }
+            p.print_experience();
         }
         else if (!strcmp(argv[argi], "type_names"))
         {
@@ -215,6 +218,7 @@ int main(int argc, char *argv[])
                     printf("error parsing file\n");
                 }
             }
+            p.print_type_names();
         }
         else if (!strcmp(argv[argi], "pokemon_stats"))
         {
@@ -227,6 +231,7 @@ int main(int argc, char *argv[])
                     printf("error parsing file\n");
                 }
             }
+            p.print_pokemon_stats();
         }
         else if (!strcmp(argv[argi], "stats"))
         {
@@ -239,6 +244,7 @@ int main(int argc, char *argv[])
                     printf("error parsing file\n");
                 }
             }
+            p.print_stats();
         }
         else if (!strcmp(argv[argi], "pokemon_types"))
         {
@@ -251,6 +257,7 @@ int main(int argc, char *argv[])
                     printf("error parsing file\n");
                 }
             }
+            p.print_pokemon_types();
         }
     }
 
