@@ -113,6 +113,7 @@ class pokedex
 {
 
 private:
+public:
     std::vector<pokemon_t *> pokemon;
     std::vector<move_t *> moves;
     std::vector<pokemon_move_t *> pokemon_moves;
@@ -123,7 +124,6 @@ private:
     std::vector<stat_t *> stats;
     std::vector<pokemon_type_t *> pokemon_types;
 
-public:
     pokedex(std::vector<std::string> &paths);
 
     // returns true if success, false otherwise

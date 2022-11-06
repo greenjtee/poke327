@@ -98,8 +98,32 @@ void display_battle(trainer *battling)
 
 void display_encounter(pokemon &encounter)
 {
+    int i = 2;
     move(0, 0);
     printw("- encounter -----------------------------------------------------------------------");
+    move(i++, 0);
+    printw("%s", encounter.type->identifier.c_str());
+    move(i++, 0);
+    printw("\tlevel: %d", encounter.level);
+    move(i++, 0);
+    printw("\thp: %d", encounter.hp);
+    move(i++, 0);
+    printw("\tattack: %d", encounter.attack);
+    move(i++, 0);
+    printw("\tdefense: %d", encounter.defense);
+    move(i++, 0);
+    printw("\tspeed: %d", encounter.speed);
+    move(i++, 0);
+    printw("\tspecial attack: %d", encounter.special_attack);
+    move(i, 0);
+    printw("\tspecial defense: %d", encounter.special_defense);
+    i += 2;
+    move(i++, 0);
+    printw("\tmoves");
+    for (move_t *m : encounter.moves) {
+        move(i++, 0);
+        printw("\t\t%s", m->identifier.c_str());
+    }
     move(map::map_y - 1, 0);
     printw("--------------------------------------------------------------------------------");
 }
