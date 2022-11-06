@@ -1,0 +1,4 @@
+# poke327
+
+## [1.07] - CSV Parsing
+Now we are able to parse csv files containing pokemon information like names, moves, stats, etc.
