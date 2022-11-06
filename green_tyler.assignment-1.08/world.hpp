@@ -6,16 +6,22 @@
 #include "map.hpp"
 #include "player.hpp"
 #include "trainer.hpp"
+#include "pokedex.hpp"
+#include "pokemon.hpp"
 
 #include "utility.hpp"
 
-#define STATUS_OK 0
-#define STATUS_DEFAULT 1
-#define STATUS_CENTER_ERROR 2
-#define STATUS_END 3
-#define STATUS_BEGINNING 4
-#define STATUS_MOVE_ERROR 5
-#define STATUS_BATTLE 6
+typedef enum status
+{
+    status_ok,
+    status_default,
+    status_center_error,
+    status_end,
+    status_beginning,
+    status_move_error,
+    status_battle,
+    status_encounter
+} status_t;
 
 typedef enum menu
 {
@@ -23,7 +29,8 @@ typedef enum menu
     menu_trainer_list,
     menu_pokemart,
     menu_pokecenter,
-    menu_battle
+    menu_battle,
+    menu_encounter
 } menu_t;
 
 class world
@@ -47,7 +54,11 @@ public:
 
     player pc;
 
-    world(uint8_t num_trainers);
+    pokedex pdex;
+
+    pokemon encounter;
+
+    world(uint8_t num_trainers, std::vector<std::string> &paths);
 
     int new_map();
 

@@ -1,11 +1,9 @@
 #include "player.hpp"
 
-#include "map.hpp"
-#include "world.hpp"
 #include <limits.h>
 
-#define STATUS_MOVE_ERROR 5
-#define STATUS_BATTLE 6
+#include "map.hpp"
+#include "world.hpp"
 
 player::player(uint8_t y, uint8_t x)
 {
@@ -73,12 +71,12 @@ int player::move(int y, int x, world &world)
             return 0;
         }
 
-        return STATUS_MOVE_ERROR;
+        return status_move_error;
     }
 
     if (world.pc_cost_map[newY][newX].cost == INT_MAX)
     {
-        return STATUS_MOVE_ERROR;
+        return status_move_error;
     }
 
     for (i = 0; i < world.num_trainers; i++)
@@ -86,12 +84,16 @@ int player::move(int y, int x, world &world)
         if (newY == world.cur_map()->trainers[i].pos[dim_y] && newX == world.cur_map()->trainers[i].pos[dim_x] && !world.cur_map()->trainers[i].defeated)
         { // pc tried to move to trainer location, battle!
             world.battling = &world.cur_map()->trainers[i];
-            return STATUS_BATTLE;
+            return status_battle;
         }
     }
 
     this->pos[dim_y] = newY;
     this->pos[dim_x] = newX;
+
+    if (world.cur_map()->get_terrain(this->pos) == ter_grass) {
+        return status_encounter;
+    }
 
     // this->next_move = world.cur_map()->time + world.pc_cost_map[newY][newX].cost;
 

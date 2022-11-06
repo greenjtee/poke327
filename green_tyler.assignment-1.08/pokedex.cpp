@@ -52,7 +52,7 @@ bool pokedex::parse_pokemon(std::string &filename)
 {
     std::ifstream file_stream(filename);
     std::string line;
-    pokemon_t *p;
+    pokemon_t *p = nullptr;
 
     if (!file_stream.is_open())
     {

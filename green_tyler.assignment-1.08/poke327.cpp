@@ -11,11 +11,6 @@
 
 #define DEFAULT_NUM_TRAINERS 10
 
-#define STATUS_OK 0
-#define STATUS_CENTER_ERROR 2
-#define STATUS_END 3
-#define STATUS_BEGINNING 4
-
 void display_trainer_list(world &world)
 {
     uint8_t i, j = 1;
@@ -101,6 +96,14 @@ void display_battle(trainer *battling)
     battling->defeated = true;
 }
 
+void display_encounter(pokemon &encounter)
+{
+    move(0, 0);
+    printw("- encounter -----------------------------------------------------------------------");
+    move(map::map_y - 1, 0);
+    printw("--------------------------------------------------------------------------------");
+}
+
 void initialize_ncurses()
 {
     initscr();
@@ -132,58 +135,14 @@ int main(int argc, char *argv[])
     int argi;
 
     std::vector<std::string> paths;
+    std::string homepath = getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv");
+    std::string sharepath = "/share/cs327" + std::string("/pokedex/pokedex/data/csv");
 
-    std::string home_path = getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv");
-    std::string share_path = "/share/cs327" + std::string("/pokedex/pokedex/data/csv");
+    paths.push_back(homepath);
+    paths.push_back(sharepath);
 
-    paths.push_back(home_path);
-    paths.push_back(share_path);
-    pokedex p(paths);
-
-    for (argi = 0; argi < argc; argi++)
-    {
-        if (!strcmp(argv[argi], "pokemon"))
-        {
-            p.print_pokemon();
-        }
-        else if (!strcmp(argv[argi], "moves"))
-        {
-            p.print_moves();
-        }
-        else if (!strcmp(argv[argi], "pokemon_moves"))
-        {
-            p.print_pokemon_moves();
-        }
-        else if (!strcmp(argv[argi], "pokemon_species"))
-        {
-            p.print_pokemon_species();
-        }
-        else if (!strcmp(argv[argi], "experience"))
-        {
-            p.print_experience();
-        }
-        else if (!strcmp(argv[argi], "type_names"))
-        {
-            p.print_type_names();
-        }
-        else if (!strcmp(argv[argi], "pokemon_stats"))
-        {
-            p.print_pokemon_stats();
-        }
-        else if (!strcmp(argv[argi], "stats"))
-        {
-            p.print_stats();
-        }
-        else if (!strcmp(argv[argi], "pokemon_types"))
-        {
-            p.print_pokemon_types();
-        }
-    }
-
-    /*
     uint8_t num_trainers = DEFAULT_NUM_TRAINERS;
     time_t seed = time(NULL);
-    int argi;
 
     for (argi = 0; argi < argc; argi++)
     {
@@ -221,9 +180,8 @@ int main(int argc, char *argv[])
     }
 
     srand(seed);
+    world w(num_trainers, paths);
     initialize_ncurses();
-
-    world w(num_trainers);
 
     w.print_map();
     refresh();
@@ -270,12 +228,14 @@ int main(int argc, char *argv[])
             refresh();
 
             break;
+        case menu_encounter:
+            clear();
+            display_encounter(w.encounter);
+            refresh();
         }
     }
 
     end_ncurses();
 
     return 0;
-
-    */
 }

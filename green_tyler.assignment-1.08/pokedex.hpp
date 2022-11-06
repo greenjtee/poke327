@@ -6,7 +6,7 @@
 #include <vector>
 #include <cstdio>
 
-typedef struct pokemon
+typedef struct pokemon_
 {
     int32_t id;
     std::string identifier;

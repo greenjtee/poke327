@@ -3,8 +3,10 @@
 #include <cstdlib>
 #include <ncurses.h>
 #include <limits.h>
+#include <vector>
+#include <string>
 
-world::world(uint8_t num_trainers) : pc(5, 5)
+world::world(uint8_t num_trainers, std::vector<std::string> &paths) : pc(5, 5), pdex(paths)
 {
     this->display_menu = menu_map;
     this->trainer_start_index = 0;
@@ -97,7 +99,7 @@ bool world::process_input()
 
     while (!valid_input)
     {
-        status = STATUS_OK;
+        status = status_ok;
         valid_input = true;
 
         c = getch();
@@ -176,51 +178,49 @@ bool world::process_input()
             else if (this->cur_map()->get_terrain(this->pc.pos[dim_y], this->pc.pos[dim_x]) == ter_mart)
             {
                 this->display_menu = menu_pokemart;
-                status = STATUS_OK;
+                status = status_ok;
             }
             else
             {
                 // not on a valid spot
-                status = STATUS_CENTER_ERROR;
+                status = status_center_error;
             }
             break;
         case '<': // leave pokemart or pokecenter
             this->display_menu = menu_map;
             this->skip_queue = true;
-            status = STATUS_OK;
+            status = status_ok;
             break;
         case '5': // rest for turn
         case ' ':
         case '.':
-            status = STATUS_OK;
+            status = status_ok;
             // this->pc.next_move += 10;
             break;
         case 't': // display trainer list
             this->display_menu = menu_trainer_list;
-            status = STATUS_OK;
+            status = status_ok;
             break;
         case KEY_UP: // scroll up trainer list
             if (this->display_menu == menu_trainer_list && this->trainer_start_index > 0)
             {
                 trainer_start_index--;
-                status = STATUS_OK;
+                status = status_ok;
             }
             else
             {
-                valid_input = 0;
-                status = STATUS_BEGINNING;
+                status = status_beginning;
             }
             break;
         case KEY_DOWN: // scroll down trainer list
             if (this->display_menu == menu_trainer_list && this->trainer_start_index < this->num_trainers)
             {
                 this->trainer_start_index++;
-                status = STATUS_OK;
+                status = status_ok;
             }
             else
             {
-                valid_input = 0;
-                status = STATUS_END;
+                status = status_end;
             }
             break;
         case 'v': // faster than pressing escape so I added this one
@@ -228,7 +228,7 @@ bool world::process_input()
             this->display_menu = menu_map;
             this->skip_queue = true;
             this->battling = nullptr;
-            status = STATUS_OK;
+            status = status_ok;
             break;
         case 'Q': // quit game
             return false;
@@ -244,7 +244,6 @@ bool world::process_input()
             if (flyX < 0 || flyX >= world_size || flyY < 0 || flyY >= world_size)
             {
                 mvaddstr(WINDOW_STATUS_TOP, 0, "Coordinates out of bounds");
-                // refresh();
             }
             else
             {
@@ -254,46 +253,42 @@ bool world::process_input()
                 this->new_map();
                 this->pc.next_move = this->cur_map()->time;
 
-                // find a place to put the pc
                 this->place_pc();
             }
             break;
 
         default:
-            status = STATUS_DEFAULT;
+            status = status_default;
             break;
         }
 
-        if (status != 0)
+        switch (status)
         {
-            // invalid input
-            valid_input = 0;
-
-            // print reason for bad input
-            if (status == STATUS_MOVE_ERROR)
+        case status_move_error:
+            mvaddstr(WINDOW_STATUS_TOP, 0, "Error: cant move here");
+            valid_input = false;
+            break;
+        case status_center_error:
+            mvaddstr(WINDOW_STATUS_TOP, 0, "Error: cant enter pokemart/pokecenter from here");
+            valid_input = false;
+            break;
+        case status_battle:
+            this->display_menu = menu_battle;
+            valid_input = true;
+            break;
+        case status_encounter:
+            valid_input = true;
+            if ((rand() % 10) == 0) // actual encounter
             {
-                // sprintf(statusMessage, "Error: ")
-                mvaddstr(WINDOW_STATUS_TOP, 0, "Error: cant move here");
+                this->display_menu = menu_encounter;
             }
-            else if (status == STATUS_CENTER_ERROR)
-            {
-                // tried to enter pokemart/pokecenter not at location
-                mvaddstr(WINDOW_STATUS_TOP, 0, "Error: cant enter pokemart/pokecenter from here");
-            }
-            else if (status == STATUS_BATTLE)
-            {
-                this->display_menu = menu_battle;
-                valid_input = 1;
-            }
-
-            refresh();
-        }
-        else
-        {
+            break;
+        case status_ok:
+            valid_input = true;
             move(WINDOW_STATUS_TOP, 0);
             clrtoeol();
             refresh();
-            // mvaddstr(WINDOW_STATUS_TOP, 0, "");
+            break;
         }
     }
 
@@ -363,7 +358,8 @@ void world::place_pc()
     {
         for (j = 0; j < map::map_x; j++)
         {
-            if (this->cur_map()->get_terrain(i, j) == ter_clearing) {
+            if (this->cur_map()->get_terrain(i, j) == ter_clearing)
+            {
                 this->pc.pos[dim_y] = i;
                 this->pc.pos[dim_x] = j;
                 return;
