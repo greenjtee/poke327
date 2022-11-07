@@ -356,11 +356,11 @@ bool world::process_input()
                 for (pokemon_stat_t *ps : this->pdex.pokemon_stats) {
                     if (this->encounter.type->id == ps->pokemon_id) {
                         this->encounter.stats.push_back(ps);
-                        break;
                     }
                 }
 
                 this->encounter.generate_base_stats();
+                this->encounter.level_up();
             }
             break;
         case status_ok:

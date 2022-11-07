@@ -11,6 +11,13 @@ pokemon::pokemon() {
     this->special_attack = rand() % 16;
     this->special_defense = rand() % 16;
 
+    this->base_hp = 0;
+    this->base_attack = 0;
+    this->base_defense = 0;
+    this->base_speed = 0;
+    this->base_special_attack = 0;
+    this->base_special_defense = 0;
+
     this->gender = gender_t(rand() % 2);
 
     this->shiny = bool(rand() % 8192 == 0);
@@ -47,17 +54,19 @@ void pokemon::generate_base_stats() {
             case stat_special_defense:
                 this->base_special_defense = ps->base_stat;
                 break;
+            case stat_speed:
+                this->base_speed = ps->base_stat;
         }
     }
 }
 
 void pokemon::level_up() {
     this->hp                = ((base_hp + hp) * 2)              * level / 100 + level + 10;
-    this->attack            = ((base_attack + hp) * 2)          * level / 100 + 5;
-    this->defense           = ((base_defense + hp) * 2)         * level / 100 + 5;
-    this->speed             = ((base_speed + hp) * 2)           * level / 100 + 5;
-    this->special_attack    = ((base_special_attack + hp) * 2)  * level / 100 + 5;
-    this->special_defense   = ((base_special_defense + hp) * 2) * level / 100 + 5;
+    this->attack            = ((base_attack + attack) * 2)          * level / 100 + 5;
+    this->defense           = ((base_defense + defense) * 2)         * level / 100 + 5;
+    this->speed             = ((base_speed + speed) * 2)           * level / 100 + 5;
+    this->special_attack    = ((base_special_attack + special_attack) * 2)  * level / 100 + 5;
+    this->special_defense   = ((base_special_defense + special_defense) * 2) * level / 100 + 5;
 }
 
 pokemon::~pokemon() {
