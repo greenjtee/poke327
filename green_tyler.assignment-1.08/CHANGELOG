@@ -3,7 +3,9 @@
 ## [1.08]
 ### Added
  - 2022-11-06
-  - pokemon loading
+  - pokemon encounters in tall grass
+  - pokemon stats loading from pokedex
+  - pokemon level up method
 
 ## [1.07]
 ### Added
