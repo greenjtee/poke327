@@ -1,0 +1,92 @@
+# Changelog
+
+## [1.08]
+### Added
+ - 2022-11-06
+  - pokemon encounters in tall grass
+  - pokemon stats loading from pokedex
+  - pokemon level up method
+
+## [1.07]
+### Added
+ - 2022-10-28
+  - added pokedex parsing
+  - added pokedex printing
+### Updated
+ - 2022-10-28
+
+## [1.06]
+### Added
+ - 2022-10-20
+  - added class for map
+  - added class for character
+  - added class for player
+  - added class for trainer
+  - added class for world
+  - refactored old code for cpp
+  - added fly command
+  - added player movement between maps
+### Updated
+ - 2022-10-20
+
+## [1.05]
+### Added
+ - 2022-10-16
+  - added support for ncurses map printing
+  - added ncurses unbuffered input
+  - added player movement with ncurses input
+ - 2022-10-18
+  - added trainer battles menu
+  - added trainer list menu
+  - added pokecenter/pokemart menu
+### Updated
+ - 2022-10-16
+
+## [1.04]
+### Added
+ - 2022-09-26
+  - added utility and trainer files to organize new features
+ - 2022-10-02
+  - created heap for player next move storage
+  - wrote function for getting the next movement position of a trainer
+### Updated
+ - 2022-09-26
+  - changed the map to keep track of trainers
+
+## [1.03]
+### Added
+ - 2022-09-16
+  - implemented sheaffer's code for map generation
+### Updated
+ - 2022-09-16
+  - changed user input to be simpler and fit new coordinates
+
+## [1.02]
+### Added
+ - 2022-09-11
+  - added data structures for maps, and a variable to hold a 2d array of maps making the world
+  - added functions to get maps from the world, and generate new if they dont exit, connecting neighbor paths
+  - added terminal input to move from one map to another (n,s,e,w)
+ - 2022-09-13
+  - added terminal input to fly to other maps with boundary checking for all input
+### Updated
+ - 2022-09-13
+  - fixed how pointers are passed for simplicity in map get and generation
+  - updated user input flow and logic
+ - 2022-09-14
+  - updated terrain generation
+  - updated pokemart and pokecenter generation to have a chance to spawn
+
+## [1.01]
+### Added
+ - 2022-09-01
+  - added tall grass regions with trees
+ - 2022-08-31
+  - added pokemart generation
+  - added pokecenter generation 
+  - added path generation
+ - 2022-08-30
+  - poke327.c
+  - Makefile
+  - CHANGELOG
+  - README
