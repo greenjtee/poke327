@@ -31,9 +31,9 @@ public:
     pokemon_t* type;
     pokemon_species_t* species;
 
-    uint32_t level;
-    uint32_t hp, attack, defense, speed, special_attack, special_defense;
-    uint32_t base_hp, base_attack, base_defense, base_speed, base_special_attack, base_special_defense;
+    int32_t level;
+    int32_t hp, attack, defense, speed, special_attack, special_defense;
+    int32_t base_hp, base_attack, base_defense, base_speed, base_special_attack, base_special_defense;
     gender_t gender;
 
     std::vector<move_t *> moves;

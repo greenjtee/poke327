@@ -9,7 +9,7 @@ prod: poke327.cpp heap.c heap.h map.cpp map.hpp world.cpp world.hpp trainer.cpp 
 	g++ -Wall -Werror -c player.cpp -o player.o -c
 	g++ -Wall -Werror -c pokedex.cpp -o pokedex.o -c
 	g++ -Wall -Werror -c pokemon.cpp -o pokemon.o -c
-	g++ -Wall -Werror poke327.o map.o heap.o world.o trainer.o player.o pokedex.o -o poke327 -lncurses
+	g++ -Wall -Werror poke327.o map.o heap.o world.o trainer.o player.o pokedex.o pokemon.o -o poke327 -lncurses
 
 poke327: poke327.o heap.o map.o world.o trainer.o player.o pokedex.o pokemon.o
 	g++ -Wall -g poke327.o heap.o map.o world.o trainer.o player.o pokedex.o pokemon.o -o poke327 -lncurses
