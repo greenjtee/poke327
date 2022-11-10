@@ -83,14 +83,11 @@ public:
     }
 
     bool process_input();
-
     bool next();
-
     void generate_cost_maps();
-
     void place_pc();
-
     bool encounter_pokemon();
+    void gen_trainer_pokemon();
 
     ~world();
 };

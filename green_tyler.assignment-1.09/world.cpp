@@ -90,6 +90,9 @@ int world::new_map()
 
     this->set_map(new map(n, s, e, w, d, p, this->num_trainers, this->pc.pos), this->cur_idx[dim_y], this->cur_idx[dim_x]);
     heap_insert(&this->cur_map()->player_queue, &this->pc);
+
+    gen_trainer_pokemon();
+
     return 0;
 }
 
@@ -399,9 +402,34 @@ bool world::encounter_pokemon()
 
     // set base stats and level up
     this->encounter->generate_base_stats();
-    this->encounter->level_up();
 
     return true;
+}
+
+// generate set of pokemon for trainers up to 6
+void world::gen_trainer_pokemon() {
+    int i;
+    for (i = 0; i < this->num_trainers; i++) {
+        int chance = 0;
+        trainer* t = &(this->cur_map()->trainers)[i];
+
+        std::vector<pokemon_t *> starter_pokemon_list;
+        this->pdex.get_random_pokemon_list(6, starter_pokemon_list);
+
+        while (chance < 60 && t->m_pokemon.size() < 6) {
+            pokemon *new_pokemon = new pokemon;
+            new_pokemon->type = starter_pokemon_list[t->m_pokemon.size()];
+            t->m_pokemon.push_back(new_pokemon);
+
+            new_pokemon->level = 0;
+            this->pdex.get_pokemon_moves(new_pokemon);
+            this->pdex.get_pokemon_species(new_pokemon);
+            this->pdex.get_pokemon_stats(new_pokemon);
+            new_pokemon->generate_base_stats();
+
+            chance = rand() % 100;
+        }
+    }
 }
 
 world::~world()

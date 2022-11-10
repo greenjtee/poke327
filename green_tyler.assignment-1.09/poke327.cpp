@@ -106,17 +106,17 @@ void display_encounter(pokemon *encounter)
     move(i++, 0);
     printw("\tlevel: %d", encounter->level);
     move(i++, 0);
-    printw("\thp: %d", encounter->hp);
+    printw("\thp: %d", encounter->hp());
     move(i++, 0);
-    printw("\tattack: %d", encounter->attack);
+    printw("\tattack: %d", encounter->attack());
     move(i++, 0);
-    printw("\tdefense: %d", encounter->defense);
+    printw("\tdefense: %d", encounter->defense());
     move(i++, 0);
-    printw("\tspeed: %d", encounter->speed);
+    printw("\tspeed: %d", encounter->speed());
     move(i++, 0);
-    printw("\tspecial attack: %d", encounter->special_attack);
+    printw("\tspecial attack: %d", encounter->special_attack());
     move(i, 0);
-    printw("\tspecial defense: %d", encounter->special_defense);
+    printw("\tspecial defense: %d", encounter->special_defense());
     i += 2;
     move(i++, 0);
     printw("\tmoves");
@@ -255,6 +255,12 @@ int main(int argc, char *argv[])
     pokemon *pc_starting_pokemon = new pokemon;
     pc_starting_pokemon->type = starting_pokemon;
     w.pc.m_pokemon.push_back(pc_starting_pokemon);
+
+    pc_starting_pokemon->level = 0;
+    w.pdex.get_pokemon_moves(pc_starting_pokemon);
+    w.pdex.get_pokemon_species(pc_starting_pokemon);
+    w.pdex.get_pokemon_stats(pc_starting_pokemon);
+    pc_starting_pokemon->generate_base_stats();
 
     w.print_map();
     refresh();

@@ -22,9 +22,15 @@ typedef enum stat_enum {
 class pokemon {
 public:
     pokemon();
-    void level_up();
     void generate_base_stats();
     void randomize_stats();
+
+    int32_t hp();
+    int32_t attack();
+    int32_t defense();
+    int32_t speed();
+    int32_t special_attack();
+    int32_t special_defense();
 
     ~pokemon();
 
@@ -32,7 +38,8 @@ public:
     pokemon_species_t* species;
 
     int32_t level;
-    int32_t hp, attack, defense, speed, special_attack, special_defense;
+    // int32_t hp, attack, defense, speed, special_attack, special_defense;
+    int32_t hp_iv, attack_iv, defense_iv, speed_iv, special_attack_iv, special_defense_iv;
     int32_t base_hp, base_attack, base_defense, base_speed, base_special_attack, base_special_defense;
     gender_t gender;
 
