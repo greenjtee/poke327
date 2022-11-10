@@ -113,15 +113,15 @@ class pokedex
 {
 
 private:
-    std::vector<pokemon_t *> pokemon;
-    std::vector<move_t *> moves;
-    std::vector<pokemon_move_t *> pokemon_moves;
-    std::vector<pokemon_species_t *> pokemon_species;
-    std::vector<experience_t *> experience;
-    std::vector<type_name_t *> type_names;
-    std::vector<pokemon_stat_t *> pokemon_stats;
-    std::vector<stat_t *> stats;
-    std::vector<pokemon_type_t *> pokemon_types;
+    std::vector<pokemon_t *> m_pokemon;
+    std::vector<move_t *> m_moves;
+    std::vector<pokemon_move_t *> m_pokemon_moves;
+    std::vector<pokemon_species_t *> m_pokemon_species;
+    std::vector<experience_t *> m_experience;
+    std::vector<type_name_t *> m_type_names;
+    std::vector<pokemon_stat_t *> m_pokemon_stats;
+    std::vector<stat_t *> m_stats;
+    std::vector<pokemon_type_t *> m_pokemon_types;
 
 public:
     pokedex(std::vector<std::string> &paths);

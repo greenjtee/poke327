@@ -6,9 +6,12 @@
 #include <string>
 #include <climits>
 
+#include "pokemon.hpp"
+
 void convert_and_store(int32_t &a, std::string &s)
 {
-    if (s.size()) {
+    if (s.size())
+    {
         a = stoi(s);
     }
     else
@@ -27,9 +30,11 @@ void better_print(int32_t a)
 
 pokedex::pokedex(std::vector<std::string> &paths)
 {
-    for (auto path : paths) {
+    for (auto path : paths)
+    {
         parse_pokemon(std::string(path).append("/pokemon.csv"));
-        if (this->pokemon.size() == 0) {
+        if (this->m_pokemon.size() == 0)
+        {
             continue;
         }
         parse_moves(std::string(path).append("/moves.csv"));
@@ -42,7 +47,8 @@ pokedex::pokedex(std::vector<std::string> &paths)
         parse_pokemon_types(std::string(path).append("/pokemon_types.csv"));
     }
 
-    if (this->pokemon.size() == 0) {
+    if (this->m_pokemon.size() == 0)
+    {
         std::cout << "No valid paths given" << std::endl;
     }
 }
@@ -95,7 +101,7 @@ bool pokedex::parse_pokemon(std::string &filename)
         convert_and_store(p->order, order);
         convert_and_store(p->is_default, is_default);
 
-        this->pokemon.push_back(p);
+        this->m_pokemon.push_back(p);
     }
 
     return true;
@@ -103,7 +109,7 @@ bool pokedex::parse_pokemon(std::string &filename)
 
 void pokedex::print_pokemon()
 {
-    for (pokemon_t *p : pokemon)
+    for (pokemon_t *p : m_pokemon)
     {
         better_print(p->id);
         printf(",");
@@ -193,7 +199,7 @@ bool pokedex::parse_moves(std::string &filename)
         convert_and_store(m->contest_effect_id, contest_effect_id);
         convert_and_store(m->super_contest_effect_id, super_contest_effect_id);
 
-        this->moves.push_back(m);
+        this->m_moves.push_back(m);
     }
 
     return true;
@@ -201,7 +207,7 @@ bool pokedex::parse_moves(std::string &filename)
 
 void pokedex::print_moves()
 {
-    for (move_t *m : moves)
+    for (move_t *m : m_moves)
     {
         better_print(m->id);
         printf(",");
@@ -278,7 +284,7 @@ bool pokedex::parse_pokemon_moves(std::string &filename)
         convert_and_store(m->level, level);
         convert_and_store(m->order, order);
 
-        this->pokemon_moves.push_back(m);
+        this->m_pokemon_moves.push_back(m);
     }
 
     return true;
@@ -286,7 +292,7 @@ bool pokedex::parse_pokemon_moves(std::string &filename)
 
 void pokedex::print_pokemon_moves()
 {
-    for (pokemon_move_t *m : pokemon_moves)
+    for (pokemon_move_t *m : m_pokemon_moves)
     {
         better_print(m->pokemon_id);
         printf(",");
@@ -370,7 +376,7 @@ bool pokedex::parse_pokemon_species(std::string &filename)
         convert_and_store(s->order, order);
         convert_and_store(s->conquest_order, conquest_order);
 
-        this->pokemon_species.push_back(s);
+        this->m_pokemon_species.push_back(s);
     }
 
     return true;
@@ -378,7 +384,7 @@ bool pokedex::parse_pokemon_species(std::string &filename)
 
 void pokedex::print_pokemon_species()
 {
-    for (pokemon_species_t *s : pokemon_species)
+    for (pokemon_species_t *s : m_pokemon_species)
     {
         better_print(s->id);
         printf(",");
@@ -451,7 +457,7 @@ bool pokedex::parse_experience(std::string &filename)
         convert_and_store(e->level, level);
         convert_and_store(e->experience, experience);
 
-        this->experience.push_back(e);
+        this->m_experience.push_back(e);
     }
 
     return true;
@@ -459,7 +465,7 @@ bool pokedex::parse_experience(std::string &filename)
 
 void pokedex::print_experience()
 {
-    for (experience_t *e : experience)
+    for (experience_t *e : m_experience)
     {
         better_print(e->growth_rate_id);
         printf(",");
@@ -498,7 +504,7 @@ bool pokedex::parse_type_names(std::string &filename)
         convert_and_store(t->local_language_id, local_language_id);
         t->name = name;
 
-        this->type_names.push_back(t);
+        this->m_type_names.push_back(t);
     }
 
     return true;
@@ -506,7 +512,7 @@ bool pokedex::parse_type_names(std::string &filename)
 
 void pokedex::print_type_names()
 {
-    for (type_name_t *t : type_names)
+    for (type_name_t *t : m_type_names)
     {
         better_print(t->type_id);
         printf(",");
@@ -547,7 +553,7 @@ bool pokedex::parse_pokemon_stats(std::string &filename)
         convert_and_store(s->base_stat, base_stat);
         convert_and_store(s->effort, effort);
 
-        this->pokemon_stats.push_back(s);
+        this->m_pokemon_stats.push_back(s);
     }
 
     return true;
@@ -555,7 +561,7 @@ bool pokedex::parse_pokemon_stats(std::string &filename)
 
 void pokedex::print_pokemon_stats()
 {
-    for (pokemon_stat_t *s : pokemon_stats)
+    for (pokemon_stat_t *s : m_pokemon_stats)
     {
         better_print(s->pokemon_id);
         printf(",");
@@ -600,7 +606,7 @@ bool pokedex::parse_stats(std::string &filename)
         convert_and_store(s->is_battle_only, is_battle_only);
         convert_and_store(s->game_index, game_index);
 
-        this->stats.push_back(s);
+        this->m_stats.push_back(s);
     }
 
     return true;
@@ -608,7 +614,7 @@ bool pokedex::parse_stats(std::string &filename)
 
 void pokedex::print_stats()
 {
-    for (stat_t *s : stats)
+    for (stat_t *s : m_stats)
     {
         better_print(s->id);
         printf(",");
@@ -650,7 +656,7 @@ bool pokedex::parse_pokemon_types(std::string &filename)
         convert_and_store(t->type_id, type_id);
         convert_and_store(t->slot, slot);
 
-        this->pokemon_types.push_back(t);
+        this->m_pokemon_types.push_back(t);
     }
 
     return true;
@@ -658,7 +664,7 @@ bool pokedex::parse_pokemon_types(std::string &filename)
 
 void pokedex::print_pokemon_types()
 {
-    for (pokemon_type_t *t : pokemon_types)
+    for (pokemon_type_t *t : m_pokemon_types)
     {
         better_print(t->pokemon_id);
         printf(",");
@@ -669,49 +675,154 @@ void pokedex::print_pokemon_types()
     }
 }
 
+pokemon_t *pokedex::get_random_pokemon()
+{
+    return this->m_pokemon.at(rand() % this->m_pokemon.size());
+}
+
+void pokedex::get_random_pokemon_list(uint32_t count, std::vector<pokemon_t *> &list)
+{
+    while (list.size() < count)
+    {
+        pokemon_t *selected = get_random_pokemon();
+
+        for (pokemon_t *p : list)
+        {
+            if (p == selected)
+            {
+                continue;
+            }
+        }
+        list.push_back(selected);
+    }
+}
+
+uint32_t pokedex::get_pokemon_level(int32_t y, int32_t x)
+{
+    int man_dist = abs(y) + abs(x);
+    int range = 100 - ((man_dist - 200) / 2) + 1;
+    if (man_dist <= 200)
+    {
+        // min = 1
+        // max = man_dist/2
+
+        return rand() % (man_dist / 2 + 1) + 1;
+    }
+    else
+    {
+        // min = (man_dist - 200) / 2
+        // max = 100
+
+        return ((man_dist - 200) / 2) + (rand() % range);
+    }
+}
+
+void pokedex::get_pokemon_moves(pokemon *p) {
+    std::vector<pokemon_move_t *> possible_moves;
+    while (possible_moves.size() == 0)
+    {
+        for (pokemon_move_t *pm : m_pokemon_moves)
+        {
+            if (pm->pokemon_id == p->type->id && pm->pokemon_move_method_id == 1 && pm->level <= p->level)
+            {
+                possible_moves.push_back(pm);
+            }
+        }
+
+        if (possible_moves.size() == 0)
+        {
+            p->level++;
+        }
+    }
+
+    if (possible_moves.size() == 1)
+    {
+        int32_t move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
+        move_t *move = m_moves.at(move_id);
+
+        p->moves.push_back(move);
+    }
+    else
+    {
+        int32_t first_move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
+        int32_t second_move_id = first_move_id;
+        move_t *move = m_moves.at(first_move_id - 1);
+        p->moves.push_back(move);
+
+        while (second_move_id == first_move_id)
+        {
+            second_move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
+        }
+
+        move = m_moves.at(second_move_id - 1);
+        p->moves.push_back(move);
+    }
+}
+
+void pokedex::get_pokemon_species(pokemon *p) {
+    for (pokemon_species_t *ps : m_pokemon_species)
+    {
+        if (p->type->species_id == ps->id)
+        {
+            p->species = ps;
+            return;
+        }
+    }
+}
+
+void pokedex::get_pokemon_stats(pokemon *p) {
+    for (pokemon_stat_t *ps : m_pokemon_stats)
+    {
+        if (p->type->id == ps->pokemon_id)
+        {
+            p->stats.push_back(ps);
+        }
+    }
+}
+
 pokedex::~pokedex()
 {
-    for (pokemon_t *p : pokemon)
+    for (pokemon_t *p : m_pokemon)
     {
         delete p;
     }
 
-    for (move_t *m : moves)
+    for (move_t *m : m_moves)
     {
         delete m;
     }
 
-    for (pokemon_move_t *m : pokemon_moves)
+    for (pokemon_move_t *m : m_pokemon_moves)
     {
         delete m;
     }
 
-    for (pokemon_species_t *s : pokemon_species)
+    for (pokemon_species_t *s : m_pokemon_species)
     {
         delete s;
     }
 
-    for (experience_t *e : experience)
+    for (experience_t *e : m_experience)
     {
         delete e;
     }
 
-    for (type_name_t *t : type_names)
+    for (type_name_t *t : m_type_names)
     {
         delete t;
     }
 
-    for (pokemon_stat_t *s : pokemon_stats)
+    for (pokemon_stat_t *s : m_pokemon_stats)
     {
         delete s;
     }
 
-    for (stat_t *s : stats)
+    for (stat_t *s : m_stats)
     {
         delete s;
     }
 
-    for (pokemon_type_t *t : pokemon_types)
+    for (pokemon_type_t *t : m_pokemon_types)
     {
         delete t;
     }

@@ -2,7 +2,7 @@
 
 pokemon::pokemon() {
     this->type = nullptr;
-    this->level = 0;
+    this->level = 1;
 
     this->hp = rand() % 16;
     this->attack = rand() % 16;
@@ -11,16 +11,16 @@ pokemon::pokemon() {
     this->special_attack = rand() % 16;
     this->special_defense = rand() % 16;
 
+    this->gender = gender_t(rand() % 2);
+
+    this->shiny = bool(rand() % 8192 == 0);
+
     this->base_hp = 0;
     this->base_attack = 0;
     this->base_defense = 0;
     this->base_speed = 0;
     this->base_special_attack = 0;
     this->base_special_defense = 0;
-
-    this->gender = gender_t(rand() % 2);
-
-    this->shiny = bool(rand() % 8192 == 0);
 }
 
 void pokemon::randomize_stats() {

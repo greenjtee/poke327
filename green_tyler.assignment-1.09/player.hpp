@@ -15,7 +15,6 @@ public:
     ~player();
 
     int move(int y, int x, world &world);
-
 };
 
 #endif

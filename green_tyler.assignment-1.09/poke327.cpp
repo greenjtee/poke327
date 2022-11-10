@@ -96,31 +96,32 @@ void display_battle(trainer *battling)
     battling->defeated = true;
 }
 
-void display_encounter(pokemon &encounter)
+void display_encounter(pokemon *encounter)
 {
     int i = 2;
     move(0, 0);
-    printw("- encounter -----------------------------------------------------------------------");
+    printw("- encounter --------------------------------------------------------------------");
     move(i++, 0);
-    printw("%s", encounter.type->identifier.c_str());
+    printw("%s", encounter->type->identifier.c_str());
     move(i++, 0);
-    printw("\tlevel: %d", encounter.level);
+    printw("\tlevel: %d", encounter->level);
     move(i++, 0);
-    printw("\thp: %d", encounter.hp);
+    printw("\thp: %d", encounter->hp);
     move(i++, 0);
-    printw("\tattack: %d", encounter.attack);
+    printw("\tattack: %d", encounter->attack);
     move(i++, 0);
-    printw("\tdefense: %d", encounter.defense);
+    printw("\tdefense: %d", encounter->defense);
     move(i++, 0);
-    printw("\tspeed: %d", encounter.speed);
+    printw("\tspeed: %d", encounter->speed);
     move(i++, 0);
-    printw("\tspecial attack: %d", encounter.special_attack);
+    printw("\tspecial attack: %d", encounter->special_attack);
     move(i, 0);
-    printw("\tspecial defense: %d", encounter.special_defense);
+    printw("\tspecial defense: %d", encounter->special_defense);
     i += 2;
     move(i++, 0);
     printw("\tmoves");
-    for (move_t *m : encounter.moves) {
+    for (move_t *m : encounter->moves)
+    {
         move(i++, 0);
         printw("\t\t%s", m->identifier.c_str());
     }
@@ -130,11 +131,12 @@ void display_encounter(pokemon &encounter)
 
 // let the user choose from a list of starting pokemon
 // return the index of the chosen pokemon
-pokemon_t* display_select_first_pokemon(pokemon_t* starter_list[3]) {
+pokemon_t *display_select_first_pokemon(std::vector<pokemon_t *> starter_list)
+{
     char ch;
     move(0, 0);
     printw("- Select your very own starting pokemon! ---------------------------------------");
-    
+
     // list out some randomly selected pokemon
     move(2, 0);
     printw(" 1) %s", starter_list[0]->identifier.c_str());
@@ -146,20 +148,22 @@ pokemon_t* display_select_first_pokemon(pokemon_t* starter_list[3]) {
     move(map::map_y - 1, 0);
     printw("--------------------------------------------------------------------------------");
 
-    while (true) {
+    while (true)
+    {
         ch = getch();
 
-        switch (ch) {
-            case '1':
-                return starter_list[0];
-            case '2':
-                return starter_list[1];
-            case '3':
-                return starter_list[2];
-            default:
-                move(map::map_y - 2, 0);
-                printw("Invalid choice, please select from 1 - 3");
-                break;
+        switch (ch)
+        {
+        case '1':
+            return starter_list[0];
+        case '2':
+            return starter_list[1];
+        case '3':
+            return starter_list[2];
+        default:
+            move(map::map_y - 2, 0);
+            printw("Invalid choice, please select from 1 - 3");
+            break;
         }
     }
 }
@@ -244,26 +248,13 @@ int main(int argc, char *argv[])
     initialize_ncurses();
 
     // get valid starter pokemon
-    pokemon_t* starter_pokemon[3];
-    uint8_t count = 0;
-    while (count < 3) {
-        int r = rand() % w.pdex.pokemon.size();
-        pokemon_t* selected = w.pdex.pokemon.at(r);
+    std::vector<pokemon_t *> starter_pokemon_list;
+    w.pdex.get_random_pokemon_list(3, starter_pokemon_list);
 
-        for (uint8_t i = 0; i < count; i++) {
-            if (starter_pokemon[i] == selected) {
-                continue;
-            }
-        }
-
-        starter_pokemon[count++] = selected;
-    }
-
-    pokemon_t* starting_pokemon = display_select_first_pokemon(starter_pokemon);
-
-    end_ncurses();
-    std::cout << starting_pokemon->identifier.c_str() << std::endl;
-    return 0;
+    pokemon_t *starting_pokemon = display_select_first_pokemon(starter_pokemon_list);
+    pokemon *pc_starting_pokemon = new pokemon;
+    pc_starting_pokemon->type = starting_pokemon;
+    w.pc.m_pokemon.push_back(pc_starting_pokemon);
 
     w.print_map();
     refresh();

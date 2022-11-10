@@ -15,6 +15,7 @@ world::world(uint8_t num_trainers, std::vector<std::string> &paths) : pc(5, 5), 
     this->cur_idx[dim_x] = this->cur_idx[dim_y] = this->world_size / 2;
     this->skip_queue = false;
     this->battling = nullptr;
+    this->encounter = nullptr;
 
     memset(this->maps, 0, world_size * world_size);
 
@@ -282,86 +283,7 @@ bool world::process_input()
             break;
         case status_encounter:
             valid_input = true;
-            if ((rand() % 10) == 0) // actual encounter
-            {
-                this->display_menu = menu_encounter;
-                // get random pokemon from database
-                this->encounter.type = this->pdex.pokemon.at(rand() % this->pdex.pokemon.size());
-                this->encounter.randomize_stats();
-                int man_dist = abs(this->cur_idx[dim_y] - world_size / 2) + abs(this->cur_idx[dim_x] - world_size / 2);
-                if (man_dist <= 200)
-                {
-                    // min = 1
-                    // max = man_dist/2
-
-                    this->encounter.level = (rand() % (man_dist / 2 + 1)) + 1;
-                }
-                else
-                {
-                    // min = (man_dist - 200) / 2
-                    // max = 100
-
-                    int range = 100 - ((man_dist - 200) / 2) + 1;
-                    this->encounter.level = ((man_dist - 200) / 2) + (rand() % range);
-                }
-
-                // moves
-                this->encounter.moves.clear();
-                std::vector<pokemon_move_t *> possible_moves;
-                while (possible_moves.size() == 0)
-                {
-                    for (pokemon_move_t *pm : this->pdex.pokemon_moves)
-                    {
-                        if (pm->pokemon_id == this->encounter.type->id && pm->pokemon_move_method_id == 1 && pm->level <= this->encounter.level)
-                        {
-                            possible_moves.push_back(pm);
-                        }
-                    }
-
-                    if (possible_moves.size() == 0)
-                    {
-                        this->encounter.level++;
-                    }
-                }
-
-                if (possible_moves.size() == 1) {
-                    int32_t move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
-                    move_t *move = this->pdex.moves.at(move_id);
-
-                    this->encounter.moves.push_back(move);
-                } else {
-                    int32_t first_move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
-                    int32_t second_move_id = first_move_id;
-                    move_t *move = this->pdex.moves.at(first_move_id-1);
-                    this->encounter.moves.push_back(move);
-
-                    while (second_move_id == first_move_id) {
-                        second_move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
-                    }
-
-                    move = this->pdex.moves.at(second_move_id-1);
-                    this->encounter.moves.push_back(move);
-                }
-
-                // species
-                for (pokemon_species_t *ps : this->pdex.pokemon_species) {
-                    if (this->encounter.type->species_id == ps->id) {
-                        this->encounter.species = ps;
-                        break;
-                    }
-                }
-                
-                // stats
-                this->encounter.stats.clear();
-                for (pokemon_stat_t *ps : this->pdex.pokemon_stats) {
-                    if (this->encounter.type->id == ps->pokemon_id) {
-                        this->encounter.stats.push_back(ps);
-                    }
-                }
-
-                this->encounter.generate_base_stats();
-                this->encounter.level_up();
-            }
+            this->encounter_pokemon();
             break;
         case status_ok:
             valid_input = true;
@@ -448,6 +370,38 @@ void world::place_pc()
     }
 
     // no good places to put pc
+}
+
+bool world::encounter_pokemon()
+{
+    if ((rand() % 10) != 0)
+    {
+        return false;
+    }
+
+    this->display_menu = menu_encounter;
+    this->encounter = new pokemon;
+
+    // get random pokemon from database
+    this->encounter->type = this->pdex.get_random_pokemon();
+    this->encounter->level = this->pdex.get_pokemon_level(cur_idx[dim_y] - world_size/2, cur_idx[dim_x] - world_size/2);
+
+    // moves
+    this->encounter->moves.clear();
+    this->pdex.get_pokemon_moves(this->encounter);
+
+    // species
+    this->pdex.get_pokemon_species(this->encounter);
+
+    // stats
+    this->encounter->stats.clear();
+    this->pdex.get_pokemon_stats(this->encounter);
+
+    // set base stats and level up
+    this->encounter->generate_base_stats();
+    this->encounter->level_up();
+
+    return true;
 }
 
 world::~world()

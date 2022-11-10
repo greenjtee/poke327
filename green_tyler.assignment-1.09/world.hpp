@@ -56,7 +56,7 @@ public:
 
     pokedex pdex;
 
-    pokemon encounter;
+    pokemon* encounter;
 
     world(uint8_t num_trainers, std::vector<std::string> &paths);
 
@@ -89,6 +89,8 @@ public:
     void generate_cost_maps();
 
     void place_pc();
+
+    bool encounter_pokemon();
 
     ~world();
 };
