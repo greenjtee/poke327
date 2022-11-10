@@ -128,6 +128,42 @@ void display_encounter(pokemon &encounter)
     printw("--------------------------------------------------------------------------------");
 }
 
+// let the user choose from a list of starting pokemon
+// return the index of the chosen pokemon
+pokemon_t* display_select_first_pokemon(pokemon_t* starter_list[3]) {
+    char ch;
+    move(0, 0);
+    printw("- Select your very own starting pokemon! ---------------------------------------");
+    
+    // list out some randomly selected pokemon
+    move(2, 0);
+    printw(" 1) %s", starter_list[0]->identifier.c_str());
+    move(4, 0);
+    printw(" 2) %s", starter_list[1]->identifier.c_str());
+    move(6, 0);
+    printw(" 3) %s", starter_list[2]->identifier.c_str());
+
+    move(map::map_y - 1, 0);
+    printw("--------------------------------------------------------------------------------");
+
+    while (true) {
+        ch = getch();
+
+        switch (ch) {
+            case '1':
+                return starter_list[0];
+            case '2':
+                return starter_list[1];
+            case '3':
+                return starter_list[2];
+            default:
+                move(map::map_y - 2, 0);
+                printw("Invalid choice, please select from 1 - 3");
+                break;
+        }
+    }
+}
+
 void initialize_ncurses()
 {
     initscr();
@@ -206,6 +242,28 @@ int main(int argc, char *argv[])
     srand(seed);
     world w(num_trainers, paths);
     initialize_ncurses();
+
+    // get valid starter pokemon
+    pokemon_t* starter_pokemon[3];
+    uint8_t count = 0;
+    while (count < 3) {
+        int r = rand() % w.pdex.pokemon.size();
+        pokemon_t* selected = w.pdex.pokemon.at(r);
+
+        for (uint8_t i = 0; i < count; i++) {
+            if (starter_pokemon[i] == selected) {
+                continue;
+            }
+        }
+
+        starter_pokemon[count++] = selected;
+    }
+
+    pokemon_t* starting_pokemon = display_select_first_pokemon(starter_pokemon);
+
+    end_ncurses();
+    std::cout << starting_pokemon->identifier.c_str() << std::endl;
+    return 0;
 
     w.print_map();
     refresh();
