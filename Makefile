@@ -7,3 +7,4 @@ prod:
 	make -C ./green_tyler.assignment-1.06 prod
 	make -C ./green_tyler.assignment-1.07 prod
 	make -C ./green_tyler.assignment-1.08 prod
+	make -C ./green_tyler.assignment-1.09 prod
