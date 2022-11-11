@@ -310,7 +310,7 @@ bool world::process_input()
                 std::vector<pokemon_move_t *> possible_moves;
                 while (possible_moves.size() == 0)
                 {
-                    for (pokemon_move_t *pm : this->pdex.m_pokemon_moves)
+                    for (pokemon_move_t *pm : this->pdex.pokemon_moves)
                     {
                         if (pm->pokemon_id == this->encounter.type->id && pm->pokemon_move_method_id == 1 && pm->level <= this->encounter.level)
                         {
@@ -326,25 +326,25 @@ bool world::process_input()
 
                 if (possible_moves.size() == 1) {
                     int32_t move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
-                    move_t *move = this->pdex.m_moves.at(move_id);
+                    move_t *move = this->pdex.moves.at(move_id);
 
                     this->encounter.moves.push_back(move);
                 } else {
                     int32_t first_move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
                     int32_t second_move_id = first_move_id;
-                    move_t *move = this->pdex.m_moves.at(first_move_id-1);
+                    move_t *move = this->pdex.moves.at(first_move_id-1);
                     this->encounter.moves.push_back(move);
 
                     while (second_move_id == first_move_id) {
                         second_move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
                     }
 
-                    move = this->pdex.m_moves.at(second_move_id-1);
+                    move = this->pdex.moves.at(second_move_id-1);
                     this->encounter.moves.push_back(move);
                 }
 
                 // species
-                for (pokemon_species_t *ps : this->pdex.m_pokemon_species) {
+                for (pokemon_species_t *ps : this->pdex.pokemon_species) {
                     if (this->encounter.type->species_id == ps->id) {
                         this->encounter.species = ps;
                         break;
@@ -353,7 +353,7 @@ bool world::process_input()
                 
                 // stats
                 this->encounter.stats.clear();
-                for (pokemon_stat_t *ps : this->pdex.m_pokemon_stats) {
+                for (pokemon_stat_t *ps : this->pdex.pokemon_stats) {
                     if (this->encounter.type->id == ps->pokemon_id) {
                         this->encounter.stats.push_back(ps);
                     }
