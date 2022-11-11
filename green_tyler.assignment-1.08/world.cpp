@@ -96,6 +96,7 @@ bool world::process_input()
 {
     bool valid_input = false;
     int status;
+    uint32_t tries;
 
     int flyX, flyY;
 
@@ -286,7 +287,7 @@ bool world::process_input()
             {
                 this->display_menu = menu_encounter;
                 // get random pokemon from database
-                this->encounter.type = this->pdex.pokemon.at(rand() % this->pdex.pokemon.size());
+                this->encounter.type = this->pdex.m_pokemon.at(rand() % this->pdex.m_pokemon.size());
                 this->encounter.randomize_stats();
                 int man_dist = abs(this->cur_idx[dim_y] - world_size / 2) + abs(this->cur_idx[dim_x] - world_size / 2);
                 if (man_dist <= 200)
@@ -324,6 +325,8 @@ bool world::process_input()
                     }
                 }
 
+                tries = 0;
+
                 if (possible_moves.size() == 1) {
                     int32_t move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
                     move_t *move = this->pdex.m_moves.at(move_id);
@@ -336,11 +339,17 @@ bool world::process_input()
                     this->encounter.moves.push_back(move);
 
                     while (second_move_id == first_move_id) {
+                        if (tries > possible_moves.size()) { // all moves are the same move probably
+                            break;
+                        }
                         second_move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
+                        tries++;
                     }
 
-                    move = this->pdex.m_moves.at(second_move_id-1);
-                    this->encounter.moves.push_back(move);
+                    if (tries <= possible_moves.size()) {
+                        move = this->pdex.m_moves.at(second_move_id-1);
+                        this->encounter.moves.push_back(move);
+                    }
                 }
 
                 // species
