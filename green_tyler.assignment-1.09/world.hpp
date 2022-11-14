@@ -30,7 +30,8 @@ typedef enum menu
     menu_pokemart,
     menu_pokecenter,
     menu_battle,
-    menu_encounter
+    menu_encounter,
+    menu_bag
 } menu_t;
 
 class world

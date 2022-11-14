@@ -4,6 +4,7 @@
 #include <ctime>
 #include <ncurses.h>
 #include <string>
+#include <unistd.h>
 
 #include "world.hpp"
 
@@ -94,6 +95,7 @@ void display_battle(trainer *battling, player &pc)
     bool encounter_defeated_player_pokemon = false;
     bool player_pokemon_defeated_encounter = false;
     bool player_moves_first = false;
+    bool bad_move = false;
 
     int run_attempts = 0;
     int odds_escape = 0;
@@ -103,7 +105,8 @@ void display_battle(trainer *battling, player &pc)
     pokemon *player_pokemon = pc.m_pokemon[pc.selected_pokemon];
     pokemon *encounter_pokemon = battling->m_pokemon[battling->selected_pokemon];
 
-    if (!pc.can_battle() || !battling->can_battle()) {
+    if (!pc.can_battle() || !battling->can_battle())
+    {
         return;
     }
 
@@ -137,12 +140,18 @@ void display_battle(trainer *battling, player &pc)
             printw("The wild pokemon was defeated!");
             return;
         }
+        else if (bad_move)
+        {
+            move(map::map_y + 1, 0);
+            printw("Can't move, this pokemon is out of hp!");
+        }
 
         last_run_failed = false;
         encounter_last_move_missed = false;
         player_last_move_missed = false;
         encounter_defeated_player_pokemon = false;
         player_pokemon_defeated_encounter = false;
+        bad_move = false;
 
         i = 2;
         move_num = 1;
@@ -235,8 +244,8 @@ void display_battle(trainer *battling, player &pc)
         case '1': // move
             if (pc.m_pokemon[pc.selected_pokemon]->remaining_hp <= 0)
             {
-                move(map::map_y + 1, 0);
-                printw("Can't move, this pokemon is out of hp!");
+                bad_move = true;
+                continue;
             }
             move(map::map_y + 1, 0);
             clrtoeol();
@@ -270,12 +279,14 @@ void display_battle(trainer *battling, player &pc)
 
             refresh();
             pokemon_ch = getchar();
-            pokemon_index = atoi(&pokemon_ch);
+            pokemon_index = pokemon_ch - '0';
 
             if (pokemon_index > 0 && pokemon_index <= pc.m_pokemon.size())
             {
                 pc.selected_pokemon = pokemon_index - 1;
-            } else {
+            }
+            else
+            {
                 move(map::map_y + 1, 0);
                 clrtoeol();
                 printw("Invalid choice");
@@ -326,7 +337,8 @@ void display_battle(trainer *battling, player &pc)
 
                     refresh();
                     pokemon_ch = getchar();
-                    pokemon_index = atoi(&pokemon_ch);
+                    pokemon_index = pokemon_ch - '0';
+
                     pc.m_pokemon[pokemon_index]->remaining_hp = pc.m_pokemon[pokemon_index]->hp() / 2;
                     pokemon_index = pc.selected_pokemon;
 
@@ -334,7 +346,9 @@ void display_battle(trainer *battling, player &pc)
                     clrtoeol();
                     printw("Revived pokemon to half health.");
                 }
-            } else {
+            }
+            else
+            {
                 move(map::map_y + 1, 0);
                 clrtoeol();
                 printw("Invalid choice");
@@ -349,7 +363,8 @@ void display_battle(trainer *battling, player &pc)
             continue;
         }
 
-        if (encounter_pokemon->remaining_hp == 0 && battling->selected_pokemon < battling->m_pokemon.size()-1) {
+        if (encounter_pokemon->remaining_hp == 0 && battling->selected_pokemon < battling->m_pokemon.size() - 1)
+        {
             battling->selected_pokemon++;
             encounter_pokemon_index = battling->selected_pokemon;
         }
@@ -446,7 +461,7 @@ void display_battle(trainer *battling, player &pc)
     {
         // wild pokemon won
         move(map::map_y + 1, 0);
-        printw("Your pokemon was defeated!");
+        printw("Your pokemon were defeated!");
     }
 }
 
@@ -466,6 +481,7 @@ void display_encounter(pokemon *encounter, player &pc)
     bool player_pokemon_defeated_encounter = false;
     bool player_moves_first = false;
     bool caught_pokemon = false;
+    bool bad_move = false;
 
     int run_attempts = 0;
     int odds_escape = 0;
@@ -474,7 +490,8 @@ void display_encounter(pokemon *encounter, player &pc)
     move_t *encounter_move = nullptr;
     pokemon *player_pokemon = pc.m_pokemon[pc.selected_pokemon];
 
-    if (!pc.can_battle()) {
+    if (!pc.can_battle())
+    {
         return;
     }
 
@@ -508,12 +525,18 @@ void display_encounter(pokemon *encounter, player &pc)
             printw("The wild pokemon was defeated!");
             return;
         }
+        else if (bad_move)
+        {
+            move(map::map_y + 1, 0);
+            printw("Can't move, this pokemon is out of hp!");
+        }
 
         last_run_failed = false;
         encounter_last_move_missed = false;
         player_last_move_missed = false;
         encounter_defeated_player_pokemon = false;
         player_pokemon_defeated_encounter = false;
+        bad_move = false;
 
         i = 2;
         move_num = 1;
@@ -608,8 +631,8 @@ void display_encounter(pokemon *encounter, player &pc)
         case '1': // move
             if (pc.m_pokemon[pc.selected_pokemon]->remaining_hp <= 0)
             {
-                move(map::map_y + 1, 0);
-                printw("Can't move, this pokemon is out of hp!");
+                bad_move = true;
+                continue;
             }
             move(map::map_y + 1, 0);
             clrtoeol();
@@ -643,12 +666,14 @@ void display_encounter(pokemon *encounter, player &pc)
 
             refresh();
             pokemon_ch = getchar();
-            pokemon_index = atoi(&pokemon_ch);
+            pokemon_index = pokemon_ch - '0';
 
             if (pokemon_index > 0 && pokemon_index <= pc.m_pokemon.size())
             {
                 pc.selected_pokemon = pokemon_index - 1;
-            } else {
+            }
+            else
+            {
                 move(map::map_y + 1, 0);
                 clrtoeol();
                 printw("Invalid choice");
@@ -713,7 +738,8 @@ void display_encounter(pokemon *encounter, player &pc)
 
                     refresh();
                     pokemon_ch = getchar();
-                    pokemon_index = atoi(&pokemon_ch);
+                    pokemon_index = pokemon_ch - '0';
+
                     pc.m_pokemon[pokemon_index]->remaining_hp = pc.m_pokemon[pokemon_index]->hp() / 2;
                     pokemon_index = pc.selected_pokemon;
 
@@ -721,7 +747,9 @@ void display_encounter(pokemon *encounter, player &pc)
                     clrtoeol();
                     printw("Revived pokemon to half health.");
                 }
-            } else {
+            }
+            else
+            {
                 move(map::map_y + 1, 0);
                 clrtoeol();
                 printw("Invalid choice");
@@ -827,7 +855,7 @@ void display_encounter(pokemon *encounter, player &pc)
     {
         // wild pokemon won
         move(map::map_y + 1, 0);
-        printw("Your pokemon was defeated!");
+        printw("Your pokemon were defeated!");
     }
     else if (caught_pokemon)
     {
@@ -835,6 +863,79 @@ void display_encounter(pokemon *encounter, player &pc)
         move(map::map_y + 1, 0);
         printw("You caught the wild %s!", encounter->type->identifier.c_str());
     }
+}
+
+void display_bag(world &w)
+{
+    move(0, 0);
+    printw("- bag --------------------------------------------------------------------------");
+
+    move(3, 0);
+    printw("-) PokeBalls = %d", w.pc.pokeballs);
+    move(4, 0);
+    printw("1) Potions   = %d", w.pc.potions);
+    move(5, 0);
+    printw("2) Revives   = %d", w.pc.revives);
+    
+    move(2, map::map_x / 4 + 1);
+    printw("available pokemon");
+
+    int i = 3;
+    int pokemon_num = 1;
+    for (pokemon *p : w.pc.m_pokemon)
+    {
+        move(i++, map::map_x / 4 + 1);
+        printw("  %d) %s - hp: %d", pokemon_num++, p->type->identifier.c_str(), p->remaining_hp);
+    }
+
+    move(map::map_y - 1, 0);
+    printw("--------------------------------------------------------------------------------");
+
+    move(map::map_y, 0);
+    printw("Choose an item, then a pokemon to use it on.");
+    refresh();
+
+    char item = getchar();
+    char pokemon_ch;
+    int pokemon_index;
+
+    if (item == '1')
+    {
+        // potion
+        pokemon_ch = getchar();
+        pokemon_index = pokemon_ch - '0';
+
+        if (pokemon_index > 0 && pokemon_index <= w.pc.m_pokemon.size())
+        {
+            w.pc.m_pokemon[pokemon_index - 1]->remaining_hp = w.pc.m_pokemon[pokemon_index - 1]->hp();
+            if (w.pc.m_pokemon[pokemon_index - 1]->remaining_hp > w.pc.m_pokemon[pokemon_index - 1]->hp())
+            {
+                w.pc.m_pokemon[pokemon_index - 1]->remaining_hp = w.pc.m_pokemon[pokemon_index - 1]->hp();
+            }
+        }
+    }
+    else if (item == '2')
+    {
+        // revive
+        pokemon_ch = getchar();
+        pokemon_index = pokemon_ch - '0';
+
+        if (pokemon_index > 0 && pokemon_index <= w.pc.m_pokemon.size() && w.pc.m_pokemon[pokemon_index - 1]->remaining_hp == 0)
+        {
+            w.pc.m_pokemon[pokemon_index - 1]->remaining_hp = w.pc.m_pokemon[pokemon_index - 1]->hp() / 2;
+        }
+    }
+    
+    i = 3;
+    pokemon_num = 1;
+    for (pokemon *p : w.pc.m_pokemon)
+    {
+        move(i++, map::map_x / 4 + 1);
+        printw("  %d) %s - hp: %d", pokemon_num++, p->type->identifier.c_str(), p->remaining_hp);
+    }
+
+    refresh();
+    sleep(2);
 }
 
 // let the user choose from a list of starting pokemon
@@ -1039,6 +1140,16 @@ int main(int argc, char *argv[])
             w.print_map();
             refresh();
 
+            break;
+        case menu_bag:
+            clear();
+            display_bag(w);
+            clear();
+
+            w.display_menu = menu_map;
+
+            w.print_map();
+            refresh();
             break;
         }
     }

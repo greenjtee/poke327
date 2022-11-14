@@ -264,7 +264,10 @@ bool world::process_input()
                 this->place_pc();
             }
             break;
-
+        case 'B': // open bag
+            status = status_ok;
+            this->display_menu = menu_bag;
+            break;
         default:
             status = status_default;
             break;

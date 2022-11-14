@@ -92,9 +92,14 @@ uint32_t trainer::get_next_move(world &world, pair_t to)
     switch (this->type)
     {
     case trainer_hiker:
-        if (!this->defeated)
+        if (!this->defeated && world.pc.can_battle())
         {
             max = get_max_descent(world, world.rival_cost_map, this, to);
+        } else if (!world.pc.can_battle())
+        {
+            max = 10;
+            to[dim_x] = this->pos[dim_x];
+            to[dim_y] = this->pos[dim_y];
         }
         else
         {
@@ -105,9 +110,14 @@ uint32_t trainer::get_next_move(world &world, pair_t to)
         // t->pos[dim_y] = to[dim_y];
         break;
     case trainer_rival:
-        if (!this->defeated)
+        if (!this->defeated && world.pc.can_battle())
         {
             max = get_max_descent(world, world.hiker_cost_map, this, to);
+        } else if (!world.pc.can_battle())
+        {
+            max = 10;
+            to[dim_x] = this->pos[dim_x];
+            to[dim_y] = this->pos[dim_y];
         }
         else
         {
