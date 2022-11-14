@@ -14,6 +14,11 @@ player::player(uint8_t y, uint8_t x)
     this->velocity[dim_y] = 0;
 
     this->next_move = 0;
+    this->selected_pokemon = 0;
+
+    this->pokeballs = 2;
+    this->potions = 2;
+    this->revives = 2;
 }
 
 int player::move(int y, int x, world &world)

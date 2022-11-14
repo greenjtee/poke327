@@ -18,6 +18,7 @@ trainer::trainer()
     this->velocity[dim_y] = 0;
 
     this->next_move = 0;
+    this->selected_pokemon = 0;
 }
 
 int trainer::move(int y, int x)

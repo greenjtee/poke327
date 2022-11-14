@@ -173,8 +173,8 @@ bool pokedex::parse_moves(std::string &filename)
         std::getline(ss, type_id, ',');
         std::getline(ss, power, ',');
         std::getline(ss, pp, ',');
-        std::getline(ss, priority, ',');
         std::getline(ss, accuracy, ',');
+        std::getline(ss, priority, ',');
         std::getline(ss, target_id, ',');
         std::getline(ss, damage_class_id, ',');
         std::getline(ss, effect_id, ',');
@@ -189,8 +189,8 @@ bool pokedex::parse_moves(std::string &filename)
         convert_and_store(m->type_id, type_id);
         convert_and_store(m->power, power);
         convert_and_store(m->pp, pp);
-        convert_and_store(m->priority, priority);
         convert_and_store(m->accuracy, accuracy);
+        convert_and_store(m->priority, priority);
         convert_and_store(m->target_id, target_id);
         convert_and_store(m->damage_class_id, damage_class_id);
         convert_and_store(m->effect_id, effect_id);
@@ -221,9 +221,9 @@ void pokedex::print_moves()
         printf(",");
         better_print(m->pp);
         printf(",");
-        better_print(m->priority);
-        printf(",");
         better_print(m->accuracy);
+        printf(",");
+        better_print(m->priority);
         printf(",");
         better_print(m->target_id);
         printf(",");
@@ -718,6 +718,7 @@ uint32_t pokedex::get_pokemon_level(int32_t y, int32_t x)
 }
 
 void pokedex::get_pokemon_moves(pokemon *p) {
+    int tries = 0;
     std::vector<pokemon_move_t *> possible_moves;
     while (possible_moves.size() == 0)
     {
@@ -725,7 +726,15 @@ void pokedex::get_pokemon_moves(pokemon *p) {
         {
             if (pm->pokemon_id == p->type->id && pm->pokemon_move_method_id == 1 && pm->level <= p->level)
             {
-                possible_moves.push_back(pm);
+                for (move_t *mm : m_moves) {
+                    if (mm->id == pm->move_id) {
+                        if (mm->power != INT_MAX) {
+                            possible_moves.push_back(pm);
+                        }
+
+                        break;
+                    }
+                }
             }
         }
 
@@ -751,7 +760,11 @@ void pokedex::get_pokemon_moves(pokemon *p) {
 
         while (second_move_id == first_move_id)
         {
+            if (tries > possible_moves.size()) {
+                return;
+            }
             second_move_id = possible_moves.at(rand() % possible_moves.size())->move_id;
+            tries++;
         }
 
         move = m_moves.at(second_move_id - 1);

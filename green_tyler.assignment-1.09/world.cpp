@@ -281,8 +281,13 @@ bool world::process_input()
             valid_input = false;
             break;
         case status_battle:
+            // if (this->battling->m_pokemon.size() == 0) {
+            //     this->battling->defeated = true;
+            //     this->battling = nullptr;
+            // } else {
             this->display_menu = menu_battle;
             valid_input = true;
+            // }
             break;
         case status_encounter:
             valid_input = true;
@@ -377,17 +382,21 @@ void world::place_pc()
 
 bool world::encounter_pokemon()
 {
+    if (!this->pc.can_battle()) {
+        return false;
+    }
+
     if ((rand() % 10) != 0)
     {
         return false;
     }
 
     this->display_menu = menu_encounter;
-    this->encounter = new pokemon;
+    this->encounter = new pokemon(this->pdex, this->pdex.get_random_pokemon());
 
     // get random pokemon from database
-    this->encounter->type = this->pdex.get_random_pokemon();
-    this->encounter->level = this->pdex.get_pokemon_level(cur_idx[dim_y] - world_size/2, cur_idx[dim_x] - world_size/2);
+    int32_t level = this->pdex.get_pokemon_level(cur_idx[dim_y] - world_size/2, cur_idx[dim_x] - world_size/2);
+    this->encounter->set_level(level);
 
     // moves
     this->encounter->moves.clear();
@@ -417,15 +426,9 @@ void world::gen_trainer_pokemon() {
         this->pdex.get_random_pokemon_list(6, starter_pokemon_list);
 
         while (chance < 60 && t->m_pokemon.size() < 6) {
-            pokemon *new_pokemon = new pokemon;
-            new_pokemon->type = starter_pokemon_list[t->m_pokemon.size()];
+            pokemon_t *type = starter_pokemon_list[t->m_pokemon.size()];
+            pokemon *new_pokemon = new pokemon(this->pdex, type);
             t->m_pokemon.push_back(new_pokemon);
-
-            new_pokemon->level = 0;
-            this->pdex.get_pokemon_moves(new_pokemon);
-            this->pdex.get_pokemon_species(new_pokemon);
-            this->pdex.get_pokemon_stats(new_pokemon);
-            new_pokemon->generate_base_stats();
 
             chance = rand() % 100;
         }
@@ -441,5 +444,9 @@ world::~world()
         {
             delete this->maps[i][j];
         }
+    }
+
+    if (this->encounter) {
+        delete encounter;
     }
 }

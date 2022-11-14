@@ -14,13 +14,13 @@ prod: poke327.cpp heap.c heap.h map.cpp map.hpp world.cpp world.hpp trainer.cpp 
 poke327: poke327.o heap.o map.o world.o trainer.o player.o pokedex.o pokemon.o
 	g++ -Wall -g poke327.o heap.o map.o world.o trainer.o player.o pokedex.o pokemon.o -o poke327 -lncurses
 
-poke327.o: poke327.cpp heap.h map.hpp
+poke327.o: poke327.cpp heap.h map.hpp world.hpp pokedex.hpp
 	g++ -Wall -g poke327.cpp -o poke327.o -c
 
 heap.o: heap.c heap.h
 	gcc -Wall -g heap.c -o heap.o -c
 
-map.o: map.cpp map.hpp heap.h trainer.hpp utility.hpp player.hpp world.hpp
+map.o: map.cpp map.hpp heap.h trainer.hpp utility.hpp player.hpp world.hpp trainer.hpp
 	g++ -Wall -g map.cpp -o map.o -c
 
 world.o: world.cpp world.hpp
@@ -32,7 +32,7 @@ trainer.o: trainer.cpp trainer.hpp map.hpp world.hpp
 player.o: player.cpp player.hpp map.hpp world.hpp
 	g++ -Wall -g player.cpp -o player.o -c
 
-pokedex.o: pokedex.cpp pokedex.hpp
+pokedex.o: pokedex.cpp pokedex.hpp pokemon.hpp
 	g++ -Wall -g pokedex.cpp -o pokedex.o -c
 
 pokemon.o: pokemon.cpp pokemon.hpp

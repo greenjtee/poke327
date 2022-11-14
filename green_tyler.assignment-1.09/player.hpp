@@ -15,6 +15,10 @@ public:
     ~player();
 
     int move(int y, int x, world &world);
+
+    int pokeballs;
+    int potions;
+    int revives;
 };
 
 #endif
