@@ -39,4 +39,4 @@ pokemon.o: pokemon.cpp pokemon.hpp
 	g++ -Wall -g pokemon.cpp -o pokemon.o -c
 
 clean:
-	rm -f poke327 && rm -f *.o
+	rm -f poke327 *.o
