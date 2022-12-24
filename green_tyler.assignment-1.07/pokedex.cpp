@@ -29,7 +29,7 @@ pokedex::pokedex(std::vector<std::string> &paths)
 {
     for (auto path : paths) {
         parse_pokemon(std::string(path).append("/pokemon.csv"));
-        if (this->pokemon.size() == 0) {
+        if (this->m_pokemon.size() == 0) {
             continue;
         }
         parse_moves(std::string(path).append("/moves.csv"));
@@ -42,7 +42,7 @@ pokedex::pokedex(std::vector<std::string> &paths)
         parse_pokemon_types(std::string(path).append("/pokemon_types.csv"));
     }
 
-    if (this->pokemon.size() == 0) {
+    if (this->m_pokemon.size() == 0) {
         std::cout << "No valid paths given" << std::endl;
     }
 }
@@ -95,7 +95,7 @@ bool pokedex::parse_pokemon(std::string &filename)
         convert_and_store(p->order, order);
         convert_and_store(p->is_default, is_default);
 
-        this->pokemon.push_back(p);
+        this->m_pokemon.push_back(p);
     }
 
     return true;
@@ -103,7 +103,7 @@ bool pokedex::parse_pokemon(std::string &filename)
 
 void pokedex::print_pokemon()
 {
-    for (pokemon_t *p : pokemon)
+    for (pokemon_t *p : m_pokemon)
     {
         better_print(p->id);
         printf(",");
@@ -671,7 +671,7 @@ void pokedex::print_pokemon_types()
 
 pokedex::~pokedex()
 {
-    for (pokemon_t *p : pokemon)
+    for (pokemon_t *p : m_pokemon)
     {
         delete p;
     }
